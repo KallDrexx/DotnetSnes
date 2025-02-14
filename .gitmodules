@@ -1,0 +1,6 @@
+[submodule "dntc"]
+	path = dntc
+	url = git@github.com:KallDrexx/dntc.git
+[submodule "pvsneslib"]
+	path = pvsneslib
+	url = git@github.com:alekmaul/pvsneslib.git

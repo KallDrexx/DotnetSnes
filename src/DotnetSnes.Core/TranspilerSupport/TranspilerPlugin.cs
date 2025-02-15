@@ -1,7 +1,7 @@
 using Dntc.Common;
 using Dntc.Common.Definitions;
 
-namespace DotnetSnes.Core;
+namespace DotnetSnes.Core.TranspilerSupport;
 
 public class TranspilerPlugin : ITranspilerPlugin
 {
@@ -10,6 +10,7 @@ public class TranspilerPlugin : ITranspilerPlugin
     public void Customize(TranspilerContext context)
     {
         AddNativeTypes(context);
+        context.ConversionInfoCreator.AddFieldMutator(new NonInitializedGlobalsMutator());
     }
 
     private static void AddNativeTypes(TranspilerContext context)

@@ -30,8 +30,9 @@ public static class Game
         Background.Disable(2);
 
         // Draw text
-        SnesConsole.DrawText(10, 10, "Hello World!");
-        SnesConsole.DrawText(6, 14, "From C#!");
+        SnesConsole.DrawText(10, 10, "Look Ma!");
+        SnesConsole.DrawText(6, 14, "An SNES Rom");
+        SnesConsole.DrawText(3, 18, "Written in C#!");
 
         Video.SetScreenOn();
 

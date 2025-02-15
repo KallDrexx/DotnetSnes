@@ -21,11 +21,15 @@ SAMPLE_DIR = $(SRC_ROOT)/$(SAMPLE_NS)
 SAMPLE_MANIFEST = $(SAMPLE_ARTIFACTS_DIR)/manifest.json
 SAMPLE_C_FILE = $(SAMPLE_ARTIFACTS_DIR)/$(CURRENT_SAMPLE).c
 SAMPLE_ROM_NAME = $(SAMPLE_ARTIFACTS_DIR)/$(CURRENT_SAMPLE).sfc
+SAMPLE_BITMAP = $(SAMPLE_ARTIFACTS_DIR)/pvsneslibfont.pic
+SAMPLE_PNG = $(SAMPLE_ARTIFACTS_DIR)/pvsneslibfont.png
 
 # PVSNESLIB
 PVSNESLIB_HOME ?= $(abspath ../pvsneslib)
+include ${PVSNESLIB_HOME}/devkitsnes/snes_rules
 PVSNESLIB_DEVKIT_TOOLS = $(PVSNESLIB_HOME)/devkitsnes/tools
-PVSNESLIB_GFX4SNES_TOOL = $(PVSNESLIB_DEVKIT_TOOLS)/gfx4snes
+GFXCONV ?= $(PVSNESLIB_DEVKIT_TOOLS)/gfx4nes
+export ROMNAME := $(CURRENT_SAMPLE)
 
 # Available samples that can be built
 .phony: hello_world
@@ -34,7 +38,7 @@ hello_world:
 
 # Core building targets
 .phony: build_sample
-build_sample: $(PVSNESLIB_GFX4SNES_TOOL) $(SAMPLE_C_FILE) 
+build_sample: $(PVSNESLIB_GFX4SNES_TOOL) $(SAMPLE_C_FILE) $(SAMPLE_BITMAP) $(ROMNAME).sfc
 	$(if $(CURRENT_SAMPLE),,$(error "No sample name set. Invoke make with a valid sample name"))
 	@echo Building $(CURRENT_SAMPLE)
 
@@ -46,12 +50,16 @@ $(SAMPLE_C_FILE): $(SAMPLE_DLL)
 $(SAMPLE_DLL): $(DOTNETSNES_CORE_DLL) $(shell find $(SAMPLE_DIR) $(CORE_DIR))
 	$(DOTNET) build -c Release $(SAMPLE_DIR)/$(SAMPLE_NS).csproj
 
+$(SAMPLE_BITMAP): $(SAMPLE_PNG) $(GFXCONV)
+	@echo convert font with no tile reduction ... $(notdir $@)
+	cd $(SAMPLE_ARTIFACTS_DIR) && $(GFXCONV) -s 8 -o 16 -u 16 -p -e 0 -i $(notdir $<)
+
 endif
 
 $(DOTNETSNES_CORE_DLL): $(shell find $(DNTC_TOOL_DIR))
 	$(DOTNET) build -c Release $(DOTNETSNES_CORE_CSPROJ)
 
-$(PVSNESLIB_GFX4SNES_TOOL):
+$(GFXCONV):
 	$(MAKE) -C $(PVSNESLIB_HOME) PVSNESLIB_HOME=$(PVSNESLIB_HOME)
 
 .phony: clean

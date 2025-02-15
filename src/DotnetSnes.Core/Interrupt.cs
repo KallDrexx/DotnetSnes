@@ -4,6 +4,6 @@ namespace DotnetSnes.Core;
 
 public static class Interrupt
 {
-    [NativeFunctionCall("waitForVBlank", Constants.HeaderFile)]
+    [NativeFunctionCall("WaitForVBlank", Constants.HeaderFile)]
     public static void WaitForVBlank() { }
 }

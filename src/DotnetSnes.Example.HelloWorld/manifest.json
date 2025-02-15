@@ -1,0 +1,17 @@
+{
+  "AssemblyDirectory": ".",
+  "AssembliesToLoad": [
+    "DotnetSnes.Core.dll",
+    "DotnetSnes.Example.HelloWorld.dll"
+  ],
+  "PluginAssembly": "DotnetSnes.Core.dll",
+  "OutputDirectory": ".",
+  "SingleGeneratedSourceFileName": "HelloWorld.c",
+  "MethodsToTranspile": [
+    "System.Int32 DotnetSnes.Example.HelloWorld.Game::Main()"
+  ],
+  "GlobalsToTranspile": [
+    "System.Byte DotnetSnes.Example.HelloWorld.Game::PaletteFont",
+    "System.Byte DotnetSnes.Example.HelloWorld.Game::TileFont"
+  ]
+}

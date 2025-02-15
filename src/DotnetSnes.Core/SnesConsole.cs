@@ -2,7 +2,7 @@ using Dntc.Attributes;
 
 namespace DotnetSnes.Core;
 
-public static class Console
+public static class SnesConsole
 {
     [NativeFunctionCall("consoleSetTextVramBGAdr", Constants.HeaderFile)]
     public static void SetTextVramBgAddress(short offsetFont) { }

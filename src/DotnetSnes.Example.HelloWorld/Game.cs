@@ -1,6 +1,5 @@
 using Dntc.Attributes;
 using DotnetSnes.Core;
-using Console = DotnetSnes.Core.Console;
 
 namespace DotnetSnes.Example.HelloWorld;
 
@@ -16,10 +15,10 @@ public static class Game
     public static int Main()
     {
         // Initialize text console with our font
-        Console.SetTextVramBgAddress(0x6800);
-        Console.SetTextVramAddress(0x3000);
-        Console.SetTextOffset(0x0100);
-        Console.InitText(0, 16 * 2, ref TileFont, ref PaletteFont);
+        SnesConsole.SetTextVramBgAddress(0x6800);
+        SnesConsole.SetTextVramAddress(0x3000);
+        SnesConsole.SetTextOffset(0x0100);
+        SnesConsole.InitText(0, 16 * 2, ref TileFont, ref PaletteFont);
 
         // Init background
         Background.SetGfxPointer(0, 0x2000);
@@ -31,8 +30,8 @@ public static class Game
         Background.Disable(2);
 
         // Draw text
-        Console.DrawText(10, 10, "Hello World!");
-        Console.DrawText(6, 14, "From C#!");
+        SnesConsole.DrawText(10, 10, "Hello World!");
+        SnesConsole.DrawText(6, 14, "From C#!");
 
         Video.SetScreenOn();
 
@@ -41,6 +40,8 @@ public static class Game
             Interrupt.WaitForVBlank();
         }
 
+#pragma warning disable CS0162 // Unreachable code detected
         return 0;
+#pragma warning restore CS0162 // Unreachable code detected
     }
 }

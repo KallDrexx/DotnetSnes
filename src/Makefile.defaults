@@ -1,0 +1,6 @@
+# Default variables specific to the samples in the DotnetSnes repository
+ARTIFACTS_ROOT ?= $(abspath bin/Release/net8.0)
+DNSNES_CORE_DIR ?= $(abspath ../DotnetSnes.Core)
+DNTC_TOOL_CSPROJ ?= $(abspath ../../dntc/Dntc.Cli/Dntc.Cli.csproj)
+PVSNESLIB_HOME ?= $(abspath ../../pvsneslib)
+DNSNES_BASE_MAKEFILE ?= $(abspath ../Makefile.base)

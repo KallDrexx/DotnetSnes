@@ -23,6 +23,7 @@ public static class Background
     /// <param name="paletteSize">Size of the palette</param>
     /// <param name="colorMode">Used for correct palette entry (BG_4COLORS0, BG_16COLORS, BG_256COLORS)</param>
     /// <param name="address">Address of tile graphics (4K aligned)</param>
+    [NativeFunctionCall("bgInitTileSet", Constants.HeaderFile)]
     public static void InitTileSet(
         byte backgroundNumber,
         ref byte tileSource,

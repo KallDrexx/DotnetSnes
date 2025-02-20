@@ -12,7 +12,7 @@ public class PointerSubtractionDefiner : IDotNetMethodDefiner
 {
     public DefinedMethod? Define(MethodDefinition method)
     {
-        if (method.DeclaringType.FullName != typeof(CUtils).DeclaringType!.FullName)
+        if (method.DeclaringType.FullName != typeof(CUtils).FullName)
         {
             return null;
         }

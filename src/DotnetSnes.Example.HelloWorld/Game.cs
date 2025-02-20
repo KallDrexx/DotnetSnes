@@ -1,14 +1,15 @@
 using Dntc.Attributes;
 using DotnetSnes.Core;
+using DotnetSnes.Core.TranspilerSupport;
 
 namespace DotnetSnes.Example.HelloWorld;
 
 public static class Game
 {
-    [CustomDeclaration("extern char tilfont", "tilfont", null)]
+    [AssemblyLabel("tilfont")]
     public static byte TileFont;
 
-    [CustomDeclaration("extern char palfont", "palfont", null)]
+    [AssemblyLabel("palfont")]
     public static byte PaletteFont;
 
     [CustomFunctionName("main")]

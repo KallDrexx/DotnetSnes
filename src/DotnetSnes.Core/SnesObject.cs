@@ -5,6 +5,25 @@ namespace DotnetSnes.Core;
 public static class SnesObject
 {
     /// <summary>
+    /// Id of the current object (useful when creating it)
+    /// </summary>
+    [NativeGlobal("objgetid", Constants.HeaderFile)]
+    public static ushort CurrentObjectId;
+
+    /// <summary>
+    /// Pointer to the current object
+    /// </summary>
+    [NativeGlobal("objptr", Constants.HeaderFile)]
+    public static ushort CurrentObjectPointer;
+
+    /// <summary>
+    /// Object buffer with all objects
+    /// </summary>
+    [NativeGlobal("objbuffers", Constants.HeaderFile)]
+    [StaticallySizedArray(64)]
+    public static ObjectDefinition[] ObjectBuffers;
+
+    /// <summary>
     /// Initialize object engine, need to be called once
     /// </summary>
     [NativeFunctionCall("objInitEngine", Constants.HeaderFile)]
@@ -70,4 +89,11 @@ public static class SnesObject
     /// <param name="handle">Handle for the object to update</param>
     [NativeFunctionCall("objUpdateXY", Constants.HeaderFile)]
     public static void UpdateXy(ushort handle) { }
+
+    /// <summary>
+    /// Get the pointer to an object from its handle (need to do -1 to have offset after).
+    /// Sets `CurrentObjectPointer` to the object's pointer.
+    /// </summary>
+    /// <param name="objectHandle"></param>
+    public static void GetPointer(ushort objectHandle) { }
 }

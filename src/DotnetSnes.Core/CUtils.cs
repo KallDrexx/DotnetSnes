@@ -24,4 +24,13 @@ public static class CUtils
     {
         return null;
     }
+
+    /// <summary>
+    /// Gets a `void *` pointer to referenced variable.
+    /// </summary>
+    [SimpleMacro("voidPointer", "#define voidPointer(a) ((char *)(&(a)))")]
+    public static unsafe char* GetCharPointer<T>(T variableName)
+    {
+        return null;
+    }
 }

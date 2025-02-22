@@ -44,8 +44,8 @@ public static unsafe class Game
         Sprite.InitDynamicSprite(0x000, 0x1000, 0, 0, OamSize.Size8L16);
 
         SnesObject.InitEngine();
-        // TODO: objInitFunctions
-        // TODO: objLoadObjects
+        SnesObject.InitFunctions(0, &Mario.Initialize, &Mario.Update, null);
+        SnesObject.LoadObjects((byte*) Mario.MarioObject);
 
         // Load map in memory and update it regarding current location of the sprite
         Map.Load(ref Globals.MarioMap, ref Globals.TileSetDefinition, ref Globals.TileSetProperties);

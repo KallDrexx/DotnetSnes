@@ -30,6 +30,16 @@ public static class SnesObject
     public static void InitEngine() {}
 
     /// <summary>
+    /// Initialize an object of a certain type with the specified init and update functionality
+    /// </summary>
+    [NativeFunctionCall("objInitFunctions", Constants.HeaderFile)]
+    public static unsafe void InitFunctions(
+        byte objectType,
+        delegate*<ushort, ushort, ushort, ushort, ushort, void> initFunction,
+        delegate*<byte, void> updateFunction,
+        delegate*<byte, void> refreshFunction) { }
+
+    /// <summary>
     /// Load all objects for a specific table in memory.
     ///
     /// Call, after loading, each init function of the type of objects for each object
@@ -43,7 +53,7 @@ public static class SnesObject
     /// </summary>
     /// <param name="source"></param>
     [NativeFunctionCall("objLoadObjects", Constants.HeaderFile)]
-    public static void LoadObjects(ref byte source) {}
+    public static unsafe void LoadObjects(byte* source) {}
 
     /// <summary>
     /// Initialize a new object in game, objgetid will have the id of the object

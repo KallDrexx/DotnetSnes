@@ -6,8 +6,8 @@ public static unsafe class Mario
 {
     private const short Acceleration = 0x0038;
     private const short MaxAcceleration = 0x0140;
-    private const short Jumping = 0x0394;
-    private const short HighJumping = 0x0594;
+    private const short JumpingAcceleration = 0x0394;
+    private const short HighJumpingAcceleration = 0x0594;
 
     /// <summary>
     /// Pointer to the Mario object
@@ -17,32 +17,32 @@ public static unsafe class Mario
     /// <summary>
     /// Pointer to Mario's X coordinates with fixed point
     /// </summary>
-    public static ushort* MarioXCoords;
+    private static short* MarioXCoords;
 
     /// <summary>
     /// Pointer to Mario's Y coordinates with fixed point
     /// </summary>
-    public static ushort* MarioYCoords;
+    private static short* MarioYCoords;
 
     /// <summary>
     /// Pointer to Mario's X velocity with fixed point
     /// </summary>
-    public static short* MarioXVelocity;
+    private static short* MarioXVelocity;
 
     /// <summary>
     /// Pointer to Mario's Y velocity with fixed point
     /// </summary>
-    public static short* MarioYVelocity;
+    private static short* MarioYVelocity;
 
     /// <summary>
     /// Mario's X coordinates with map depth (not only screen)
     /// </summary>
-    public static ushort MarioXMapDepth;
+    private static ushort MarioXMapDepth;
 
     /// <summary>
     /// Mario's Y coordinates with map depth (not only screen)
     /// </summary>
-    public static ushort MarioYMapDepth;
+    private static ushort MarioYMapDepth;
 
     // To manage the sprite display
     public static byte MarioFidx;
@@ -63,8 +63,8 @@ public static unsafe class Mario
         MarioObject->Width = 16;
         MarioObject->Height = 16;
 
-        MarioXCoords = (ushort*)CUtils.AddressOf(MarioObject->XPosition[1]);
-        MarioYCoords = (ushort*)CUtils.AddressOf(MarioObject->YPosition[1]);
+        MarioXCoords = (short*)CUtils.AddressOf(MarioObject->XPosition[1]);
+        MarioYCoords = (short*)CUtils.AddressOf(MarioObject->YPosition[1]);
         MarioXVelocity = CUtils.AddressOf(MarioObject->XVelocity);
         MarioYVelocity = CUtils.AddressOf(MarioObject->YVelocity);
 
@@ -83,38 +83,108 @@ public static unsafe class Mario
 
     public static void Update(byte index)
     {
-        Game.Pad0 = (KeypadBits) Input.PadsCurrent(0);
-        if ((Game.Pad0 & KeypadBits.Left) == KeypadBits.Left)
+        Game.Pad0 = (KeypadBits)Input.PadsCurrent(0);
+
+        if ((Game.Pad0 & (KeypadBits.A | KeypadBits.Left | KeypadBits.Right)) > 0)
         {
-            // Update animation (sprites 2-3)
-            if (MarioFlip != 2)
+            if ((Game.Pad0 & KeypadBits.Left) == KeypadBits.Left)
             {
-                MarioFlip = 2;
+                // Update animation (sprites 2-3)
+                if (MarioFlip != 2)
+                {
+                    MarioFlip = 2;
+                }
+
+                // `& 0xFF` needed for the C# compiler not to complain that ~0x40 overflows a byte
+                Sprite.Buffer[0].Attribute &= ~0x40 & 0xFF; // do not flip the sprite
+
+                MarioObject->CurrentObjectAction = ObjectAction.Walk;
+                *MarioXVelocity -= Acceleration;
+                if (*MarioXVelocity <= -MaxAcceleration)
+                {
+                    *MarioXVelocity = -MaxAcceleration;
+                }
             }
 
-            // `& 0xFF` needed for the C# compiler not to complain that ~0x40 overflows a byte
-            Sprite.Buffer[0].Attribute &= ~0x40 & 0xFF; // do not flip the sprite
-
-            MarioObject->CurrentObjectAction = ObjectAction.Walk;
-            *MarioXVelocity -= Acceleration;
-            if (*MarioXVelocity <= -MaxAcceleration)
+            if ((Game.Pad0 & KeypadBits.Right) == KeypadBits.Right)
             {
-                *MarioXVelocity = -MaxAcceleration;
+                // Update animation (sprites 2-3)
+                if (MarioFlip != 2)
+                {
+                    MarioFlip = 2;
+                }
+
+                Sprite.Buffer[0].Attribute |= 0x40; // flip the sprite
+
+                MarioObject->CurrentObjectAction = ObjectAction.Walk;
+                *MarioXVelocity += Acceleration;
+                if (*MarioXVelocity >= MaxAcceleration)
+                {
+                    *MarioXVelocity = MaxAcceleration;
+                }
+            }
+
+            if ((Game.Pad0 & KeypadBits.A) == KeypadBits.A)
+            {
+                // We can jump only if we are on the ground
+                if (MarioObject->TileStanding != 0)
+                {
+                    MarioObject->CurrentObjectAction = ObjectAction.Jump;
+
+                    // If key is up, jump 2x more
+                    if ((Game.Pad0 & KeypadBits.Up) == KeypadBits.Up)
+                    {
+                        *MarioYVelocity = -HighJumpingAcceleration;
+                    }
+                    else
+                    {
+                        *MarioYVelocity = -JumpingAcceleration;
+                    }
+
+                    Sound.PlaySound(0);
+                }
             }
         }
 
-        if ((Game.Pad0 & KeypadBits.Right) == KeypadBits.Right)
-        {
-            // Update animation (sprites 2-3)
-            if (MarioFlip != 2)
-            {
-                MarioFlip = 2;
-            }
+        SnesObject.CollidMap(index);
 
-            Sprite.Buffer[0].Attribute |= 0x40; // flip the sprite
+        // Update the animation
+        switch (MarioObject->CurrentObjectAction)
+        {
+            case ObjectAction.Walk:
+                Walk(index);
+                break;
+
+            case ObjectAction.Fall:
+                Fall(index);
+                break;
+
+            case ObjectAction.Jump:
+                Jump(index);
+                break;
         }
+
+        SnesObject.UpdateXy(index);
+
+        // Check boundaries
+        if (*MarioXCoords <= 0)
+        {
+            *MarioXCoords = 0;
+        }
+
+        if (*MarioYCoords <= 0)
+        {
+            *MarioYCoords = 0;
+        }
+
+        MarioXMapDepth = (ushort)*MarioXCoords;
+        MarioYMapDepth = (ushort)*MarioYCoords;
+        Sprite.Buffer[0].XPosition = (short)(MarioXMapDepth - Map.CameraXPosition);
+        Sprite.Buffer[0].YPosition = (short)(MarioYMapDepth - Map.CameraYPosition);
+
+        Map.UpdateCamera(MarioXMapDepth, MarioYMapDepth);
     }
-    
+
     private static void Walk(byte index)
     {
         // Update animation

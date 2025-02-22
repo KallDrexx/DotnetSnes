@@ -11,6 +11,18 @@ namespace DotnetSnes.Core;
 public static class Map
 {
     /// <summary>
+    /// Current Y coordinates of the camera
+    /// </summary>
+    [NativeGlobal("y_pos", Constants.HeaderFile)]
+    public static ushort CameraYPosition;
+
+    /// <summary>
+    /// Current X coordinates of the camera
+    /// </summary>
+    [NativeGlobal("x_pos", Constants.HeaderFile)]
+    public static ushort CameraXPosition;
+
+    /// <summary>
     /// Load map definition into memory. WARNING: Map engine must be used on background #0.
     /// </summary>
     /// <param name="layerMap">Address of the map with tiles</param>
@@ -30,4 +42,12 @@ public static class Map
     /// </summary>
     [NativeFunctionCall("mapVblank", Constants.HeaderFile)]
     public static void VBlank() { }
+
+    /// <summary>
+    /// Update the map's camera (must be done once per frame
+    /// </summary>
+    /// <param name="xPosition">X coordinate of the object we want to focus on</param>
+    /// <param name="yPosition">Y coordinate of the object we want to focus on</param>
+    [NativeFunctionCall("mapUpdateCamera", Constants.HeaderFile)]
+    public static void UpdateCamera(ushort xPosition, ushort yPosition) { }
 }

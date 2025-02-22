@@ -6,47 +6,7 @@ namespace DotnetSnes.Example.LikeMario;
 public static unsafe class Game
 {
     public static BrrSamples JumpSound;
-    public static ushort Pad0;
-
-    /// <summary>
-    /// Pointer to the Mario object
-    /// </summary>
-    public static ObjectDefinition* MarioObject;
-
-    /// <summary>
-    /// Pointer to Mario's X coordinates with fixed point
-    /// </summary>
-    public static ushort* MarioXCoords;
-
-    /// <summary>
-    /// Pointer to Mario's Y coordinates with fixed point
-    /// </summary>
-    public static ushort* MarioYCoords;
-
-    /// <summary>
-    /// Pointer to Mario's X velocity with fixed point
-    /// </summary>
-    public static short* MarioXVelocity;
-
-    /// <summary>
-    /// Pointer to Mario's Y velocity with fixed point
-    /// </summary>
-    public static short* MarioYVelocity;
-
-    /// <summary>
-    /// Mario's X coordinates with map depth (not only screen)
-    /// </summary>
-    public static ushort MarioXMapDepth;
-
-    /// <summary>
-    /// Mario's Y coordinates with map depth (not only screen)
-    /// </summary>
-    public static ushort MarioYMapDepth;
-
-    // To manage the sprite display
-    public static byte MarioFidx;
-    public static byte MarioFlip;
-    public static byte Flip;
+    public static KeypadBits Pad0;
 
     [CustomFunctionName("main")]
     public static int Main()
@@ -115,84 +75,5 @@ public static unsafe class Game
         }
 
         return 0;
-    }
-
-    public static void InitializeMario(ushort xPosition, ushort yPosition, ushort type, ushort minX, ushort maxX)
-    {
-        // Prepare new object
-        if (SnesObject.New((byte)type, xPosition, yPosition) == 0)
-        {
-            // No more space, exit
-            return;
-        }
-
-        SnesObject.GetPointer(SnesObject.CurrentObjectId);
-        MarioObject = CUtils.PointerTo(SnesObject.ObjectBuffers[SnesObject.CurrentObjectPointer - 1]);
-        MarioObject->Width = 16;
-        MarioObject->Height = 16;
-
-        MarioXCoords = (ushort*)CUtils.PointerTo(MarioObject->XPosition[1]);
-        MarioYCoords = (ushort*)CUtils.PointerTo(MarioObject->YPosition[1]);
-        MarioXVelocity = CUtils.PointerTo(MarioObject->XVelocity);
-        MarioYVelocity = CUtils.PointerTo(MarioObject->YVelocity);
-
-        MarioFidx = 0;
-        MarioFlip = 0;
-
-        MarioObject->CurrentObjectAction = ObjectAction.Stand;
-
-        Sprite.Buffer[0].FrameId = 6;
-        Sprite.Buffer[0].Refresh = 1;
-        Sprite.Buffer[0].Attribute = 0x60; // palette 0 of sprite, sprite 16x16, priority 2, flip
-        Sprite.Buffer[0].GraphicsPointer = CUtils.PointerTo(Globals.MarioGraphicsStart);
-
-        SnesObject.SetPalette(ref Globals.MarioPalette, 128 + 0 * 16, 16 * 2);
-    }
-
-    private static void MarioWalk(byte index)
-    {
-        // Update animation
-        Flip++;
-        if ((Flip & 3) == 3)
-        {
-            MarioFidx++;
-            MarioFidx = (byte)(MarioFidx & 1);
-            Sprite.Buffer[0].FrameId = (ushort)(MarioFlip + MarioFidx);
-            Sprite.Buffer[0].Refresh = 1;
-        }
-
-        // Check if we are still walking or not with the velocity property
-        if (*MarioYVelocity != 0)
-        {
-            MarioObject->CurrentObjectAction = ObjectAction.Fall;
-        }
-        else if (*MarioXVelocity == 0 && (*MarioYVelocity == 0))
-        {
-            MarioObject->CurrentObjectAction = ObjectAction.Stand;
-        }
-    }
-
-    private static void MarioFall(byte index)
-    {
-        if (*MarioYVelocity == 0)
-        {
-            MarioObject->CurrentObjectAction = ObjectAction.Stand;
-            Sprite.Buffer[0].FrameId = 6;
-            Sprite.Buffer[0].Refresh = 1;
-        }
-    }
-
-    private static void MarioJump(byte index)
-    {
-        if (Sprite.Buffer[0].FrameId != 1)
-        {
-            Sprite.Buffer[0].FrameId = 1;
-            Sprite.Buffer[0].Refresh = 1;
-        }
-
-        if (*MarioYVelocity >= 0)
-        {
-            MarioObject->CurrentObjectAction = ObjectAction.Fall;
-        }
     }
 }

@@ -20,7 +20,7 @@ public static class CUtils
     /// allows us to compile it down directly to a simple macro
     /// </summary>
     [SimpleMacro("pointerTo", "#define pointerTo(a) (&(a))")]
-    public static unsafe T* PointerTo<T>(T obj)
+    public static unsafe T* AddressOf<T>(T obj)
     {
         return null;
     }

@@ -17,7 +17,7 @@ export
 $(PVSNESLIB_TOOL_FILE):
 	$(MAKE) -C $(PVSNESLIB_HOME) PVSNESLIB_HOME=$(PVSNESLIB_HOME)
 
-.phony: bitmaps all
+.phony: all
 all: $(PVSNESLIB_TOOL_FILE) $(GENERATED_C_FILE) $(ARTIFACTS_ROOT)/$(SNES_NAME).sfc
 
 $(GENERATED_C_FILE): $(SNES_DLL)
@@ -27,7 +27,7 @@ $(SNES_DLL): $(shell find . $(DNSNES_CORE_DIR) $(DNTC_CLI_DIR) -type f -name "*.
 	$(DOTNET) build -c Release $(ORIGINAL_PATH)
 
 # The actual rom needs to be built from inside the artifacts directory
-$(ARTIFACTS_ROOT)/$(SNES_NAME).sfc: bitmaps
+$(ARTIFACTS_ROOT)/$(SNES_NAME).sfc: build_game_assets
 	$(MAKE) -f $(THIS_MAKEFILE) -C $(ARTIFACTS_ROOT) $(SNES_NAME).sfc ROMNAME=$(SNES_NAME)
 
 clean:
@@ -35,5 +35,6 @@ clean:
 
 clean: cleanBuildRes cleanRom cleanGfx
 
-bitmaps:
-	$(MAKE) -f $(THIS_MAKEFILE) -C $(ARTIFACTS_ROOT) pvsneslibfont.pic
+.phony: build_game_assets game_assets
+build_game_assets:
+	$(MAKE) -f $(THIS_MAKEFILE) -C $(ARTIFACTS_ROOT) game_assets

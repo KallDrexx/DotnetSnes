@@ -12,6 +12,8 @@ include $(DNSNES_BASE_MAKEFILE)
 include ${PVSNESLIB_HOME}/devkitsnes/snes_rules
 PVSNESLIB_DEVKIT_TOOLS = $(PVSNESLIB_HOME)/devkitsnes/tools
 
+game_assets: pvsneslibfont.pic
+
 pvsneslibfont.pic: pvsneslibfont.png
 	@echo convert font with no tile reduction ... $(notdir $@)
 	cd $(ARTIFACTS_ROOT) && \

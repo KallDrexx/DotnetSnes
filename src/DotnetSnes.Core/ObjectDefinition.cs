@@ -158,7 +158,7 @@ public struct ObjectDefinition
     /// Current action of the object, depends on the game.
     /// </summary>
     [CustomFieldName("action")]
-    public ushort CurrentAction;
+    public ObjectAction CurrentObjectAction;
 
     /// <summary>
     /// Status of object regarding collision

@@ -1,15 +1,27 @@
+using DotnetSnes.Core.TranspilerSupport;
+
 namespace DotnetSnes.Core;
 
 public static class CUtils
 {
     /// <summary>
-    ///
+    /// Gets the count of bytes between two addresses
     /// </summary>
-    /// <param name="first"></param>
-    /// <param name="second"></param>
-    /// <returns></returns>
+    [SimpleMacro("bytesBetween", "#define bytesBetween(a,b) ((a) - (b))")]
     public static byte BytesBetweenAddress(ref byte first, ref byte second)
     {
-        return (byte)(first - second);
+        return 0;
+    }
+
+    /// <summary>
+    /// Gets a pointer to the specified object.
+    ///
+    /// Needed because C# requires the `fixed` keyword, and that compiles to extra MSIL. So this
+    /// allows us to compile it down directly to a simple macro
+    /// </summary>
+    [SimpleMacro("pointerTo", "#define pointerTo(a) (&(a))")]
+    public static unsafe T* PointerTo<T>(T obj)
+    {
+        return null;
     }
 }

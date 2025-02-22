@@ -5,6 +5,12 @@ namespace DotnetSnes.Core;
 public static class Sprite
 {
     /// <summary>
+    /// Current sprite buffer for dynamic engine
+    /// </summary>
+    [NativeGlobal("oambuffer", Constants.HeaderFile)]
+    public static SpriteDefinition[] Buffer;
+
+    /// <summary>
     /// Initialize the dynamic sprite engine with each sprite size entries
     /// </summary>
     /// <param name="largeGraphicsEntryAddress">

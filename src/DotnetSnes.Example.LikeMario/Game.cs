@@ -16,12 +16,12 @@ public static unsafe class Game
     /// <summary>
     /// Pointer to Mario's X coordinates with fixed point
     /// </summary>
-    public static short* MarioXCoords;
+    public static ushort* MarioXCoords;
 
     /// <summary>
     /// Pointer to Mario's Y coordinates with fixed point
     /// </summary>
-    public static short* MarioYCoords;
+    public static ushort* MarioYCoords;
 
     /// <summary>
     /// Pointer to Mario's X velocity with fixed point
@@ -127,8 +127,72 @@ public static unsafe class Game
         }
 
         SnesObject.GetPointer(SnesObject.CurrentObjectId);
-        MarioObject = &SnesObject.ObjectBuffers[SnesObject.CurrentObjectPointer - 1];
+        MarioObject = CUtils.PointerTo(SnesObject.ObjectBuffers[SnesObject.CurrentObjectPointer - 1]);
         MarioObject->Width = 16;
         MarioObject->Height = 16;
+
+        MarioXCoords = (ushort*)CUtils.PointerTo(MarioObject->XPosition[1]);
+        MarioYCoords = (ushort*)CUtils.PointerTo(MarioObject->YPosition[1]);
+        MarioXVelocity = CUtils.PointerTo(MarioObject->XVelocity);
+        MarioYVelocity = CUtils.PointerTo(MarioObject->YVelocity);
+
+        MarioFidx = 0;
+        MarioFlip = 0;
+
+        MarioObject->CurrentObjectAction = ObjectAction.Stand;
+
+        Sprite.Buffer[0].FrameId = 6;
+        Sprite.Buffer[0].Refresh = 1;
+        Sprite.Buffer[0].Attribute = 0x60; // palette 0 of sprite, sprite 16x16, priority 2, flip
+        Sprite.Buffer[0].GraphicsPointer = CUtils.PointerTo(Globals.MarioGraphicsStart);
+
+        SnesObject.SetPalette(ref Globals.MarioPalette, 128 + 0 * 16, 16 * 2);
+    }
+
+    private static void MarioWalk(byte index)
+    {
+        // Update animation
+        Flip++;
+        if ((Flip & 3) == 3)
+        {
+            MarioFidx++;
+            MarioFidx = (byte)(MarioFidx & 1);
+            Sprite.Buffer[0].FrameId = (ushort)(MarioFlip + MarioFidx);
+            Sprite.Buffer[0].Refresh = 1;
+        }
+
+        // Check if we are still walking or not with the velocity property
+        if (*MarioYVelocity != 0)
+        {
+            MarioObject->CurrentObjectAction = ObjectAction.Fall;
+        }
+        else if (*MarioXVelocity == 0 && (*MarioYVelocity == 0))
+        {
+            MarioObject->CurrentObjectAction = ObjectAction.Stand;
+        }
+    }
+
+    private static void MarioFall(byte index)
+    {
+        if (*MarioYVelocity == 0)
+        {
+            MarioObject->CurrentObjectAction = ObjectAction.Stand;
+            Sprite.Buffer[0].FrameId = 6;
+            Sprite.Buffer[0].Refresh = 1;
+        }
+    }
+
+    private static void MarioJump(byte index)
+    {
+        if (Sprite.Buffer[0].FrameId != 1)
+        {
+            Sprite.Buffer[0].FrameId = 1;
+            Sprite.Buffer[0].Refresh = 1;
+        }
+
+        if (*MarioYVelocity >= 0)
+        {
+            MarioObject->CurrentObjectAction = ObjectAction.Fall;
+        }
     }
 }

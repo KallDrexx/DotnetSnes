@@ -10,7 +10,7 @@ public class TranspilerPlugin : ITranspilerPlugin
     public void Customize(TranspilerContext context)
     {
         AddNativeTypes(context);
-        context.Definers.Append(new PointerSubtractionDefiner());
+        context.Definers.Append(new SimpleMacroAttribute.Definer());
         context.Definers.Append(new AssemblyLabelAttribute.Definer());
         context.ConversionInfoCreator.AddFieldMutator(new NonInitializedGlobalsMutator());
     }

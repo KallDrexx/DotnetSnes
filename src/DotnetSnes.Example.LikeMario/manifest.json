@@ -1,0 +1,14 @@
+{
+  "AssemblyDirectory": ".",
+  "AssembliesToLoad": [
+    "DotnetSnes.Core.dll",
+    "DotnetSnes.Example.LikeMario.dll"
+  ],
+  "PluginAssembly": "DotnetSnes.Core.dll",
+  "OutputDirectory": ".",
+  "SingleGeneratedSourceFileName": "LikeMario.c",
+  "MethodsToTranspile": [
+    "System.Int32 DotnetSnes.Example.LikeMario.Game::Main()"
+  ],
+  "GlobalsToTranspile": []
+}

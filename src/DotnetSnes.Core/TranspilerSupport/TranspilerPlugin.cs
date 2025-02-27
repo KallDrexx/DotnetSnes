@@ -71,6 +71,12 @@ public class TranspilerPlugin : ITranspilerPlugin
                 new HeaderName(Constants.HeaderFile),
                 new CTypeName("u16"),
                 []),
+
+            new NativeDefinedType(
+                new IlTypeName(typeof(bool).FullName!),
+                new HeaderName(Constants.HeaderFile),
+                new CTypeName("unsigned char"),
+                []),
         ]);
     }
 }

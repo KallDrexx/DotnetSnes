@@ -25,7 +25,7 @@ public class SimpleMacroAttribute(string name, string code) : Attribute
             }
 
             var name = attribute.ConstructorArguments[0].Value.ToString()!;
-            var code = attribute.ConstructorArguments[0].Value.ToString()!;
+            var code = attribute.ConstructorArguments[1].Value.ToString()!;
 
             // TODO: Generic methods need their ids normalized. There should be an easier way
             // to do this so you can't forget to do so in a custom definer.

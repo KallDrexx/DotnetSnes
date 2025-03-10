@@ -20,7 +20,7 @@ public static class SnesObject
     /// Object buffer with all objects
     /// </summary>
     [NativeGlobal("objbuffers", Constants.HeaderFile)]
-    [StaticallySizedArray(64)]
+    [StaticallySizedArray(64, true)]
     public static ObjectDefinition[] ObjectBuffers;
 
     /// <summary>

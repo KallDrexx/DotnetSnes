@@ -72,14 +72,14 @@ public struct ObjectDefinition
     /// X position on the screen (3 fixed point)
     /// </summary>
     [CustomFieldName("xpos")]
-    [StaticallySizedArray(3)]
+    [StaticallySizedArray(3, true)]
     public byte[] XPosition;
 
     /// <summary>
     /// Y position on the screen (3 fixed point)
     /// </summary>
     [CustomFieldName("ypos")]
-    [StaticallySizedArray(3)]
+    [StaticallySizedArray(3, true)]
     public byte[] YPosition;
 
     /// <summary>
@@ -212,6 +212,6 @@ public struct ObjectDefinition
     /// Not used: OB_SIZE-55-1 for future use
     /// </summary>
     [CustomFieldName("objnotused")]
-    [StaticallySizedArray(7)]
+    [StaticallySizedArray(7, true)]
     public byte[] NotUsed;
 }

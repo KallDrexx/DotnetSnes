@@ -11,7 +11,7 @@ public static class Globals
     [AssemblyLabel("jumpsnd")]
     public static byte JumpSound;
 
-    [AssemblyLabel("jmpsndend")]
+    [AssemblyLabel("jumpsndend")]
     public static byte JumpSoundEnd;
 
     [AssemblyLabel("tileset")]
@@ -50,6 +50,6 @@ public static class Globals
     [AssemblyLabel("snespal")]
     public static byte SnesPalette;
 
-    [NativeGlobal("MOD_OVERWORLD", null)]
+    [NativeGlobal("MOD_OVERWORLD", "soundbank.h")]
     public static byte OverworldMusic;
 }

@@ -105,5 +105,6 @@ public static class SnesObject
     /// Sets `CurrentObjectPointer` to the object's pointer.
     /// </summary>
     /// <param name="objectHandle"></param>
+    [NativeFunctionCall("objGetPointer", Constants.HeaderFile)]
     public static void GetPointer(ushort objectHandle) { }
 }

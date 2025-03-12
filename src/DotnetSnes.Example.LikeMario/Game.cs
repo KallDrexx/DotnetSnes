@@ -40,6 +40,8 @@ public static unsafe class Game
             16, // 16 color mode
             0x2000);
 
+        Background.SetMapPointer(0, 0x6800, MapSizes.Size64X32);
+
         // Init sprite engine (0x000 for large, 0x1000 for small)
         Sprite.InitDynamicSprite(0x000, 0x1000, 0, 0, OamSize.Size8L16);
 

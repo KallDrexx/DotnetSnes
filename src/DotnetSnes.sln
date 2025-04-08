@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dntc.Cli", "..\dntc\Dntc.Cl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotnetSnes.Example.LikeMario", "DotnetSnes.Example.LikeMario\DotnetSnes.Example.LikeMario.csproj", "{40412AC7-2595-4A24-A9F8-A826BB789BCC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotnetSnes.Example.Objects.MoveObjects", "DotnetSnes.Example.Objects.MoveObjects\DotnetSnes.Example.Objects.MoveObjects.csproj", "{D7C5AA56-A0BB-496B-B902-6BE630B5CFF1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -52,6 +54,10 @@ Global
 		{40412AC7-2595-4A24-A9F8-A826BB789BCC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{40412AC7-2595-4A24-A9F8-A826BB789BCC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{40412AC7-2595-4A24-A9F8-A826BB789BCC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D7C5AA56-A0BB-496B-B902-6BE630B5CFF1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7C5AA56-A0BB-496B-B902-6BE630B5CFF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7C5AA56-A0BB-496B-B902-6BE630B5CFF1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7C5AA56-A0BB-496B-B902-6BE630B5CFF1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{05DB0FDF-0DDF-49F1-A2B1-B531EAA78FA1} = {5BC8A2EF-3306-4754-B3AD-58989BA21E96}
@@ -59,5 +65,6 @@ Global
 		{DE603BCF-5973-41D0-9A0B-25FEA5AB5802} = {DA258C08-A72D-40A2-B156-531697C3DDAE}
 		{21387CC0-B6B1-4711-B6DE-B99703F4A897} = {5BC8A2EF-3306-4754-B3AD-58989BA21E96}
 		{40412AC7-2595-4A24-A9F8-A826BB789BCC} = {DA258C08-A72D-40A2-B156-531697C3DDAE}
+		{D7C5AA56-A0BB-496B-B902-6BE630B5CFF1} = {DA258C08-A72D-40A2-B156-531697C3DDAE}
 	EndGlobalSection
 EndGlobal

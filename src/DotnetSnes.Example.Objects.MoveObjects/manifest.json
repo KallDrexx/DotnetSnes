@@ -1,0 +1,14 @@
+{
+  "AssemblyDirectory": ".",
+  "AssembliesToLoad": [
+    "DotnetSnes.Core.dll",
+    "DotnetSnes.Example.Objects.MoveObjects.dll"
+  ],
+  "PluginAssembly": "DotnetSnes.Core.dll",
+  "OutputDirectory": ".",
+  "SingleGeneratedSourceFileName": "MoveObjects.c",
+  "MethodsToTranspile": [
+    "System.Void DotnetSnes.Example.Objects.MoveObjects.Code::Main()"
+  ],
+  "GlobalsToTranspile": []
+}

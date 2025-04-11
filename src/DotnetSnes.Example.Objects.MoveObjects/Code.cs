@@ -137,8 +137,8 @@ public static unsafe class Code
         SnesObject.LoadObjects((byte *)CUtils.AddressOf(ObjectTable));
 
         // Need to init the map, even if not present to allow udpate functions to work
-        CurrentXPosition = 0;
-        CurrentYPosition = 0;
+        Map.CameraXPosition = 0;
+        Map.CameraYPosition = 0;
 
         while (true)
         {

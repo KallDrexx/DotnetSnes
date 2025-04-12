@@ -1,4 +1,4 @@
-# DotnetSnes 
+[mario.webm](https://github.com/user-attachments/assets/686a77aa-603d-4583-b7fb-885595840fff)# DotnetSnes 
 
 Allows using .net languages to create real working SNES roms!
 
@@ -60,6 +60,8 @@ You should see `Build finished successfully !` and a `HelloWorld.sfc` should now
 folder. This is your SNES rom that you can load into an emulator, or save to flash cart.
 
 ### LikeMario Game Example
+
+https://github.com/user-attachments/assets/b39b9c10-7562-445d-afaf-fa0f3fd6ce0c
 
 This is a C# port of the 
 [PVSnesLib LikeMario example](https://github.com/alekmaul/pvsneslib/tree/master/snes-examples/games/likemario), which

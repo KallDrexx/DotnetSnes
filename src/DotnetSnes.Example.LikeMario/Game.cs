@@ -5,10 +5,7 @@ namespace DotnetSnes.Example.LikeMario;
 
 public static unsafe class Game
 {
-    [CustomFieldName("Jump")]
     public static BrrSamples JumpSound;
-
-    [CustomFieldName("pad0")]
     public static KeypadBits Pad0;
 
     [CustomFunctionName("main")]

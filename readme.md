@@ -1,6 +1,16 @@
-[mario.webm](https://github.com/user-attachments/assets/686a77aa-603d-4583-b7fb-885595840fff)# DotnetSnes 
+# DotnetSnes 
 
 Allows using .net languages to create real working SNES roms!
+
+<!-- TOC -->
+* [How Does It Work?](#how-does-it-work)
+* [Getting Started](#getting-started)
+   * [Dependencies needed to install on WSL Ubuntu for make](#dependencies-needed-to-install-on-wsl-ubuntu-for-make)
+   * [Preparing the Repo and SDKs](#preparing-the-repo-and-sdks)
+   * [Hello World Example](#hello-world-example)
+   * [LikeMario Game Example](#likemario-game-example)
+   * [Creating a New Project](#creating-a-new-project)
+<!-- TOC -->
 
 ## How Does It Work?
 
@@ -167,4 +177,3 @@ That should compile your project, and if successful will build the SNES rom in t
 If your code references game content specified in assembly files, those locations in the assembly files are referenced
 by labels. In C code these are referenced by defining an `extern char` for the label name. In .net projects, you can
 reference these by annotating a field with a `[AssemblyLabel("labelName")]` attribute.
-

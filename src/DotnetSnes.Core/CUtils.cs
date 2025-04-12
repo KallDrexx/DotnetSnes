@@ -20,7 +20,7 @@ public static class CUtils
     /// Needed because C# requires the `fixed` keyword, and that compiles to extra MSIL. So this
     /// allows us to compile it down directly to a simple macro
     /// </summary>
-    [CustomFunction("#define pointerTo(a) (&(a))", null, "pointerTo")]
+    [CustomFunction("#define addressOf(a) (&(a))", null, "addressOf")]
     public static unsafe T* AddressOf<T>(T obj)
     {
         return null;

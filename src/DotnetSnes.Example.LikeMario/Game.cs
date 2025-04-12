@@ -26,11 +26,15 @@ public static unsafe class Game
         Sound.Load(Globals.OverworldMusic);
 
         // Load jump sound sample
-        var jumpSoundSize = CUtils.BytesBetweenAddress(ref Globals.JumpSoundEnd, ref Globals.JumpSound);
-        Sound.SetSoundEntry(15, 8, 6, jumpSoundSize, ref Globals.JumpSound, ref JumpSound);
+        Sound.SetSoundEntry(
+            15,
+            8,
+            6,
+            CUtils.BytesBetweenAddress(ref Globals.JumpSoundEnd, ref Globals.JumpSound),
+            ref Globals.JumpSound,
+            ref JumpSound);
 
         // Init layer with tiles and init map length 0x6000 is mandatory for map engine
-        var tileSize = CUtils.BytesBetweenAddress(ref Globals.TileSetEnd, ref Globals.TileSetStart);
         Background.SetGfxPointer(1, 0x3000);
         Background.SetMapPointer(1, 0x6000, MapSizes.Size32X32);
         Background.InitTileSet(
@@ -38,7 +42,7 @@ public static unsafe class Game
             ref Globals.TileSetStart,
             ref Globals.TileSetPalette,
             0,
-            tileSize,
+            CUtils.BytesBetweenAddress(ref Globals.TileSetEnd, ref Globals.TileSetStart),
             16 * 2,
             16, // 16 color mode
             0x2000);

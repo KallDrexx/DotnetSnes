@@ -115,4 +115,14 @@ public static class Sprite
     {
 
     }
+
+    /// <summary>
+    /// Add a 16x16 sprite on screen.oambuffer[id] needs to be populate before.
+    /// </summary>
+    /// <param name="id">d the oam number to be used  [0 - 127]</param>
+    [NativeFunctionCall("oamDynamic16Draw", Constants.HeaderFile)]
+    public static void Dynamic16Draw(ushort id)
+    {
+
+    }
 }

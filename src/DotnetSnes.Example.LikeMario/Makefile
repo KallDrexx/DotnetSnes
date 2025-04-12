@@ -22,7 +22,7 @@ PVSNESLIB_DEVKIT_TOOLS = $(PVSNESLIB_HOME)/devkitsnes/tools
 SMCONVFLAGS := -s -o $(SOUNDBANK) -V -b 5
 musics: $(SOUNDBANK).obj
 
-game_assets: mario_sprite.pic tiles.pic map_1_1.m16 mariofont.pic pvs musics
+game_assets: mario_sprite.pic tiles.pic map_1_1.m16 mariofont.pic musics mariojump.brr
 
 mario_sprite.pic: mario_sprite.bmp
 	@echo convert sprites ... $(notdir $@)

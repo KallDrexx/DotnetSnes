@@ -5,7 +5,10 @@ namespace DotnetSnes.Example.LikeMario;
 
 public static unsafe class Game
 {
+    [CustomFieldName("Jump")]
     public static BrrSamples JumpSound;
+
+    [CustomFieldName("pad0")]
     public static KeypadBits Pad0;
 
     [CustomFunctionName("main")]
@@ -47,7 +50,7 @@ public static unsafe class Game
 
         SnesObject.InitEngine();
         SnesObject.InitFunctions(0, &Mario.Initialize, &Mario.Update, null);
-        SnesObject.LoadObjects((byte*) Mario.MarioObject);
+        SnesObject.LoadObjects((byte*) CUtils.AddressOf(Globals.MarioObject));
 
         // Load map in memory and update it regarding current location of the sprite
         Map.Load(ref Globals.MarioMap, ref Globals.TileSetDefinition, ref Globals.TileSetProperties);

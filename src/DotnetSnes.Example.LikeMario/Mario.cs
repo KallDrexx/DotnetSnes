@@ -1,3 +1,4 @@
+using Dntc.Attributes;
 using DotnetSnes.Core;
 
 namespace DotnetSnes.Example.LikeMario;
@@ -12,43 +13,56 @@ public static unsafe class Mario
     /// <summary>
     /// Pointer to the Mario object
     /// </summary>
+    [CustomFieldName("marioobj")]
     public static ObjectDefinition* MarioObject;
 
     /// <summary>
     /// Pointer to Mario's X coordinates with fixed point
     /// </summary>
+    [CustomFieldName("marioox")]
     private static short* MarioXCoords;
 
     /// <summary>
     /// Pointer to Mario's Y coordinates with fixed point
     /// </summary>
+    [CustomFieldName("mariooy")]
     private static short* MarioYCoords;
 
     /// <summary>
     /// Pointer to Mario's X velocity with fixed point
     /// </summary>
+    [CustomFieldName("marioxv")]
     private static short* MarioXVelocity;
 
     /// <summary>
     /// Pointer to Mario's Y velocity with fixed point
     /// </summary>
+    [CustomFieldName("marioyv")]
     private static short* MarioYVelocity;
 
     /// <summary>
     /// Mario's X coordinates with map depth (not only screen)
     /// </summary>
+    [CustomFieldName("mariox")]
     private static ushort MarioXMapDepth;
 
     /// <summary>
     /// Mario's Y coordinates with map depth (not only screen)
     /// </summary>
+    [CustomFieldName("marioy")]
     private static ushort MarioYMapDepth;
 
     // To manage the sprite display
+    [CustomFieldName("mariofidx")]
     public static byte MarioFidx;
+
+    [CustomFieldName("marioflp")]
     public static byte MarioFlip;
+
+    [CustomFieldName("flip")]
     public static byte Flip;
 
+    [CustomFunctionName("marioinit")]
     public static void Initialize(ushort xPosition, ushort yPosition, ushort type, ushort minX, ushort maxX)
     {
         // Prepare new object
@@ -81,6 +95,7 @@ public static unsafe class Mario
         SnesObject.SetPalette(ref Globals.MarioPalette, 128 + 0 * 16, 16 * 2);
     }
 
+    [CustomFunctionName("marioupdate")]
     public static void Update(byte index)
     {
         Game.Pad0 = (KeypadBits)Input.PadsCurrent(0);
@@ -182,9 +197,11 @@ public static unsafe class Mario
         Sprite.Buffer[0].XPosition = (short)(MarioXMapDepth - Map.CameraXPosition);
         Sprite.Buffer[0].YPosition = (short)(MarioYMapDepth - Map.CameraYPosition);
 
+        Sprite.Dynamic16Draw(0);
         Map.UpdateCamera(MarioXMapDepth, MarioYMapDepth);
     }
 
+    [CustomFunctionName("mariowalk")]
     private static void Walk(byte index)
     {
         // Update animation
@@ -208,6 +225,7 @@ public static unsafe class Mario
         }
     }
 
+    [CustomFunctionName("mariofall")]
     private static void Fall(byte index)
     {
         if (*MarioYVelocity == 0)
@@ -218,6 +236,7 @@ public static unsafe class Mario
         }
     }
 
+    [CustomFunctionName("mariojump")]
     private static void Jump(byte index)
     {
         if (Sprite.Buffer[0].FrameId != 1)

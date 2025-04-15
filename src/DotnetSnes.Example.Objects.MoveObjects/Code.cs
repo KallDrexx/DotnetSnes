@@ -136,7 +136,7 @@ public static unsafe class Code
         NumSprites = 0;
         SnesObject.LoadObjects((byte *)CUtils.AddressOf(ObjectTable));
 
-        // Need to init the map, even if not present to allow udpate functions to work
+        // Need to init the map, even if not present to allow update functions to work
         Map.CameraXPosition = 0;
         Map.CameraYPosition = 0;
 

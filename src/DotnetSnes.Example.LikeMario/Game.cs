@@ -3,6 +3,9 @@ using DotnetSnes.Core;
 
 namespace DotnetSnes.Example.LikeMario;
 
+/// <summary>
+/// Simple Mario like platformer example based on the PVSnesLib LikeMario example
+/// </summary>
 public static unsafe class Game
 {
     public static BrrSamples JumpSound;

@@ -1,5 +1,6 @@
 using Dntc.Common;
 using Dntc.Common.Definitions;
+using Dntc.Common.Definitions.CustomDefinedTypes;
 
 namespace DotnetSnes.Core.TranspilerSupport;
 
@@ -76,6 +77,16 @@ public class TranspilerPlugin : ITranspilerPlugin
                 new HeaderName(Constants.HeaderFile),
                 new CTypeName("unsigned char"),
                 []),
+
+            new UnsizedCArrayDefinedType(
+                new IlTypeName(typeof(ushort).FullName!),
+                new IlTypeName(typeof(ushort[]).FullName!)),
+
+            new UnsizedCArrayDefinedType(
+                new IlTypeName(typeof(byte).FullName!),
+                new IlTypeName(typeof(byte[]).FullName!)),
         ]);
+
+        context.DefinitionCatalog.Add([new StringGetCharsMethodDefinition()]);
     }
 }

@@ -33,13 +33,13 @@ public class AssemblyLabelAttribute(string labelName) : Attribute
 
             var label = attribute.ConstructorArguments[0].Value.ToString()!;
             var declaration = $"extern char {label}";
-            var declaringNamespace = Utils.GetNamespace(field.DeclaringType);
+            var declaringNamespace = Dntc.Common.Utils.GetNamespace(field.DeclaringType);
 
             return new CustomDeclaredFieldDefinition(
                 field,
                 declaration,
-                Utils.GetHeaderName(declaringNamespace),
-                Utils.GetSourceFileName(declaringNamespace),
+                Dntc.Common.Utils.GetHeaderName(declaringNamespace),
+                Dntc.Common.Utils.GetSourceFileName(declaringNamespace),
                 new CFieldName(label),
                 new IlFieldId(field.FullName),
                 new IlTypeName(field.FieldType.FullName),

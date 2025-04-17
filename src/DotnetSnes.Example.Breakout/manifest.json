@@ -1,0 +1,14 @@
+{
+  "AssemblyDirectory": ".",
+  "AssembliesToLoad": [
+    "DotnetSnes.Core.dll",
+    "DotnetSnes.Example.Breakout.dll"
+  ],
+  "PluginAssembly": "DotnetSnes.Core.dll",
+  "OutputDirectory": ".",
+  "SingleGeneratedSourceFileName": "Breakout.c",
+  "MethodsToTranspile": [
+    "System.Void DotnetSnes.Example.Breakout.Game::Main()"
+  ],
+  "GlobalsToTranspile": []
+}

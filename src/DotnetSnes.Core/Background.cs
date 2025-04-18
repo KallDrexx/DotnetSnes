@@ -34,4 +34,23 @@ public static class Background
         ushort paletteSize,
         ushort colorMode,
         ushort address) {}
+
+    /// <summary>
+    /// Initializes a map set and loads it into SNES vram
+    /// </summary>
+    /// <param name="backgroundNumber">Background number (0-3, 0xff to not change map pointer</param>
+    /// <param name="mapSource">Address of map entry</param>
+    /// <param name="mapSize">Size of the map</param>
+    /// <param name="sizeMode">Used for correct tile mapping</param>
+    /// <param name="address">Address of the map</param>
+    [NativeFunctionCall("bgInitMapSet", Constants.HeaderFile)]
+    public static void InitMapSet<T>(
+        byte backgroundNumber,
+        ref T mapSource,
+        ushort mapSize,
+        MapSizes sizeMode,
+        ushort address)
+    {
+
+    }
 }

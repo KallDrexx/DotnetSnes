@@ -18,7 +18,7 @@ public static class CUtils
     /// Gets a pointer to the specified object.
     ///
     /// Needed because C# requires the `fixed` keyword, and that compiles to extra MSIL. So this
-    /// allows us to compile it down directly to a simple macro
+    /// allows us to compile it down directly to a simple macro.
     /// </summary>
     [CustomFunction("#define addressOf(a) (&(a))", null, "addressOf")]
     public static unsafe T* AddressOf<T>(T obj)

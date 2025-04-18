@@ -50,8 +50,8 @@ public static class Game
         Interrupt.WaitForVBlank();
 
         // Load tiles into vram
-        Dma.CopyVram(CUtils.AddressOf(AssemblyLabels.Tiles1), 0x1000, 0xf00);
-        Dma.CopyVram(CUtils.AddressOf(AssemblyLabels.Tiles2), 0x2000, 0x250);
+        Dma.CopyVram(ref AssemblyLabels.Tiles1, 0x1000, 0xf00);
+        Dma.CopyVram(ref AssemblyLabels.Tiles2, 0x2000, 0x250);
 
         // Copy data files to ram var to be able to modify them
         Utils.MemCopy(CUtils.AddressOf(BlockMap), CUtils.AddressOf(AssemblyLabels.Background1Map), 0x800);
@@ -99,6 +99,42 @@ public static class Game
         Interrupt.WaitForVBlank(); // Wait to avoid glitches
 
         // Init map bg0 and bg2 address and put data inside them
+        Background.InitMapSet(0, ref BlockMap, 0x800, MapSizes.Size32X32, 0x000);
+        Background.InitMapSet(2, ref BackMap, 0x800, MapSizes.Size32X32, 0x400);
+        Dma.CopyCGram(ref Palette, 0, 256 * 2);
+
+        // Init graphics pointer for each background
+        Background.SetGfxPointer(0, 0x1000);
+        Background.SetGfxPointer(2, 0x2000);
+
+        // Put it in 16-bit color mode and disable bg2
+        Video.SetMode(BackgroundMode.Mode1, 0);
+        Background.Disable(1);
+
+        Video.SetScreenOn();
+        DrawScreen();
+
+        for (LoopI = 0; LoopI < 10 * 4; LoopI += 4)
+        {
+            Sprite.SetExtendedProperties(1, Sprite.SpriteSize.Small, OamVisibility.Show);
+        }
+
+        // Wait for key pressed
+        while (Input.PadsCurrent(0) == 0)
+        {
+            Interrupt.WaitForVBlank();
+        }
+
+        // Remove text (wait for vblank to be sure of no glitches
+        WriteString(Blank, ref BlockMap, 0x248, 0x3f6);
+        WriteString(Blank, ref BlockMap, 0x289, 0x3f6);
+        Interrupt.WaitForVBlank();
+        Dma.CopyVram(ref BlockMap, 0x000, 0x800);
+
+        while (true)
+        {
+            RunFrame();
+        }
     }
 
     private static ushort Clamp(ushort value, ushort min, ushort max)
@@ -239,9 +275,9 @@ public static class Game
 
         // Reinit palette and backgrounds
         Interrupt.WaitForVBlank();
-        Dma.CopyCGram(CUtils.AddressOf(AssemblyLabels.Palette), 0, 256 * 2);
-        Dma.CopyVram(CUtils.AddressOf(BlockMap), 0x0000, 0x800);
-        Dma.CopyVram(CUtils.AddressOf(BackMap), 0x0400, 0x800);
+        Dma.CopyCGram(ref AssemblyLabels.Palette, 0, 256 * 2);
+        Dma.CopyVram(ref BlockMap, 0x0000, 0x800);
+        Dma.CopyVram(ref BackMap, 0x0400, 0x800);
 
         DrawScreen();
 
@@ -256,7 +292,7 @@ public static class Game
         WriteString(Blank, ref BlockMap, 0x289, 0x3f6);
         Interrupt.WaitForVBlank();
 
-        Dma.CopyVram(CUtils.AddressOf(BlockMap), 0x000, 0x800);
+        Dma.CopyVram(ref BlockMap, 0x000, 0x800);
     }
 
     private static unsafe void Die()
@@ -265,7 +301,7 @@ public static class Game
         {
             WriteString(GameOver, ref BlockMap, 0x267, 0x3f6);
             Interrupt.WaitForVBlank();
-            Dma.CopyVram(CUtils.AddressOf(BlockMap), 0x000, 0x800);
+            Dma.CopyVram(ref BlockMap, 0x000, 0x800);
             while (true)
             {
                 // Require a reset to reset
@@ -280,7 +316,7 @@ public static class Game
         WriteNumber(NumLives, 8, ref BlockMap, 0x267, 0x3f6);
         WriteString(PlayerReady, ref BlockMap, 0x248, 0x3f6);
         Interrupt.WaitForVBlank();
-        Dma.CopyVram(CUtils.AddressOf(BlockMap), 0x000, 0x800);
+        Dma.CopyVram(ref BlockMap, 0x000, 0x800);
 
         DrawScreen();
 
@@ -294,7 +330,7 @@ public static class Game
         WriteString(Blank, ref BlockMap, 0x248, 0x3f6);
         WriteString(Blank, ref BlockMap, 0x289, 0x3f6);
         Interrupt.WaitForVBlank();
-        Dma.CopyVram(CUtils.AddressOf(BlockMap), 0x000, 0x800);
+        Dma.CopyVram(ref BlockMap, 0x000, 0x800);
     }
 
     private static unsafe void HandlePause()
@@ -304,7 +340,7 @@ public static class Game
         {
             WriteString(Paused, ref BlockMap, 0x269, 0x3f6);
             Interrupt.WaitForVBlank();
-            Dma.CopyVram(CUtils.AddressOf(BlockMap), 0x000, 0x800);
+            Dma.CopyVram(ref BlockMap, 0x000, 0x800);
 
             // Wait for start to be released
             while (Input.PadsCurrent(0) != 0)
@@ -326,7 +362,7 @@ public static class Game
 
             WriteString(Blank, ref BlockMap, 0x269, 0x3f6);
             Interrupt.WaitForVBlank();
-            Dma.CopyVram(CUtils.AddressOf(BlockMap), 0x000, 0x800);
+            Dma.CopyVram(ref BlockMap, 0x000, 0x800);
         }
     }
 
@@ -447,8 +483,8 @@ public static class Game
                 }
 
                 Interrupt.WaitForVBlank();
-                Dma.CopyVram(CUtils.AddressOf(BlockMap), 0x000, 0x800);
-                Dma.CopyVram(CUtils.AddressOf(BackMap), 0x400, 0x800);
+                Dma.CopyVram(ref BlockMap, 0x000, 0x800);
+                Dma.CopyVram(ref BackMap, 0x400, 0x800);
 
                 // If no more bricks, start a new level
                 if (BlockCount == 0)

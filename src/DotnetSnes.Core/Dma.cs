@@ -11,7 +11,7 @@ public static class Dma
     /// <param name="address">CGram (palette storage) address to copy</param>
     /// <param name="size">Size in bytes of the data to copy</param>
     [NativeFunctionCall("dmaCopyCGram", Constants.HeaderFile)]
-    public static unsafe void CopyCGram<T>(T* source, ushort address, ushort size)
+    public static void CopyCGram<T>(ref T source, ushort address, ushort size)
     {
     }
 
@@ -22,7 +22,7 @@ public static class Dma
     /// <param name="address">VRAM address to copy</param>
     /// <param name="size">Size in bytes of the data to copy</param>
     [NativeFunctionCall("dmaCopyVram", Constants.HeaderFile)]
-    public static unsafe void CopyVram<T>(T* source, ushort address, ushort size)
+    public static void CopyVram<T>(ref T source, ushort address, ushort size)
     {
 
     }

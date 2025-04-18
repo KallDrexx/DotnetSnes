@@ -1,3 +1,4 @@
+using System;
 using Dntc.Attributes;
 using DotnetSnes.Core.TranspilerSupport;
 
@@ -22,15 +23,6 @@ public static class CUtils
     /// </summary>
     [CustomFunction("#define addressOf(a) (&(a))", null, "addressOf")]
     public static unsafe T* AddressOf<T>(T obj)
-    {
-        return null;
-    }
-
-    /// <summary>
-    /// Gets a `void *` pointer to referenced variable.
-    /// </summary>
-    [CustomFunction("#define voidPointer(a) ((char *)(&(a)))", null, "voidPointer")]
-    public static unsafe char* GetCharPointer<T>(T variableName)
     {
         return null;
     }

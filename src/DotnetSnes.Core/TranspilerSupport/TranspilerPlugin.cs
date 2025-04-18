@@ -76,6 +76,20 @@ public class TranspilerPlugin : ITranspilerPlugin
                 new HeaderName(Constants.HeaderFile),
                 new CTypeName("unsigned char"),
                 []),
+
+            // Workaround for a dntc bug due to generic parameters. Unsure how to handle yet
+            new NativeDefinedType(
+                new IlTypeName(typeof(ushort[]).FullName!),
+                new HeaderName(Constants.HeaderFile),
+                new CTypeName("u16"),
+                []),
+
+            // Workaround for a dntc bug due to generic parameters. Unsure how to handle yet
+            new NativeDefinedType(
+                new IlTypeName(typeof(byte[]).FullName!),
+                new HeaderName(Constants.HeaderFile),
+                new CTypeName("u8"),
+                []),
         ]);
     }
 }

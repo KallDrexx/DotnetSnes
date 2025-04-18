@@ -38,9 +38,68 @@ public static class Game
     public static ushort Score, HighScore;
     public static ushort MaxLevel;
     public static ushort BackgroundColor, CurrentLevel, NumLives;
-    public static ushort Gamepad0;
+    public static KeypadBits Gamepad0;
     public static Vector2 BallVelocity, BallPosition;
     public static ushort PaddleXCoordinates;
+
+    [CustomFunctionName("main")]
+    public static unsafe void Main()
+    {
+        // Turn screen off to allow us to update vram
+        Video.SetBrightness(0);
+        Interrupt.WaitForVBlank();
+
+        // Load tiles into vram
+        Dma.CopyVram(CUtils.AddressOf(AssemblyLabels.Tiles1), 0x1000, 0xf00);
+        Dma.CopyVram(CUtils.AddressOf(AssemblyLabels.Tiles2), 0x2000, 0x250);
+
+        // Copy data files to ram var to be able to modify them
+        Utils.MemCopy(CUtils.AddressOf(BlockMap), CUtils.AddressOf(AssemblyLabels.Background1Map), 0x800);
+        Utils.MemCopy(CUtils.AddressOf(BackMap), CUtils.AddressOf(AssemblyLabels.Background2Map), 0x800);
+        Utils.MemCopy(CUtils.AddressOf(Blocks), CUtils.AddressOf(Map), 0x64);
+        Utils.MemCopy(CUtils.AddressOf(AssemblyLabels.Palette), CUtils.AddressOf(Palette), 0x200);
+
+        // Init global variables
+        BlockCount = 0;
+        BallX = 5;
+        BallY = 11;
+        Score = 0;
+        HighScore = 50000;
+        MaxLevel = 1;
+        BackgroundColor = 0;
+        CurrentLevel = 0;
+        NumLives = 4;
+        PaddleXCoordinates = 80;
+        BallVelocity.X = 22;
+        BallVelocity.Y = 1;
+        BallPosition.X = 94;
+        BallPosition.Y = 109;
+
+        // Init map with all the bricks
+        BrickB = 0;
+        for (LoopJ = 0; LoopJ < 10; LoopJ++)
+        {
+            for (LoopI = 0; LoopI < 20; LoopI += 2)
+            {
+                BrickA = Blocks[BrickB++];
+                if (BrickA < 8)
+                {
+                    BrickC = (ushort)((LoopJ << 5) + LoopI);
+                    BlockCount++;
+                    BlockMap[0x62 + BrickC] = (ushort)(13 + (BrickA << 10));
+                    BlockMap[0x63 + BrickC] = (ushort)(14 + (BrickA << 10));
+                    BackMap[0x83 + BrickC] += 0x400;
+                    BackMap[0x84 + BrickC] += 0x400;
+                }
+            }
+        }
+
+        WriteNumber(NumLives, 8, ref BlockMap, 0x136, 0x426);
+        WriteString(PlayerReady, ref BlockMap, 0x248, 0x3f6);
+        Interrupt.WaitForVBlank(); // Wait to avoid glitches
+
+        // Init map bg0 and bg2 address and put data inside them
+    }
 
     private static ushort Clamp(ushort value, ushort min, ushort max)
     {
@@ -198,5 +257,208 @@ public static class Game
         Interrupt.WaitForVBlank();
 
         Dma.CopyVram(CUtils.AddressOf(BlockMap), 0x000, 0x800);
+    }
+
+    private static unsafe void Die()
+    {
+        if (NumLives == 0)
+        {
+            WriteString(GameOver, ref BlockMap, 0x267, 0x3f6);
+            Interrupt.WaitForVBlank();
+            Dma.CopyVram(CUtils.AddressOf(BlockMap), 0x000, 0x800);
+            while (true)
+            {
+                // Require a reset to reset
+            }
+        }
+
+        NumLives--;
+        BallPosition.X = 94;
+        BallPosition.Y = 109;
+        PaddleXCoordinates = 80;
+
+        WriteNumber(NumLives, 8, ref BlockMap, 0x267, 0x3f6);
+        WriteString(PlayerReady, ref BlockMap, 0x248, 0x3f6);
+        Interrupt.WaitForVBlank();
+        Dma.CopyVram(CUtils.AddressOf(BlockMap), 0x000, 0x800);
+
+        DrawScreen();
+
+        // Wait until a key is pressed
+        while (Input.PadsCurrent(0) == 0)
+        {
+            Interrupt.WaitForVBlank();
+        }
+
+        // Remove the message
+        WriteString(Blank, ref BlockMap, 0x248, 0x3f6);
+        WriteString(Blank, ref BlockMap, 0x289, 0x3f6);
+        Interrupt.WaitForVBlank();
+        Dma.CopyVram(CUtils.AddressOf(BlockMap), 0x000, 0x800);
+    }
+
+    private static unsafe void HandlePause()
+    {
+        // If we pushed the pause button
+        if ((Gamepad0 & KeypadBits.Start) > 0)
+        {
+            WriteString(Paused, ref BlockMap, 0x269, 0x3f6);
+            Interrupt.WaitForVBlank();
+            Dma.CopyVram(CUtils.AddressOf(BlockMap), 0x000, 0x800);
+
+            // Wait for start to be released
+            while (Input.PadsCurrent(0) != 0)
+            {
+                Interrupt.WaitForVBlank();
+            }
+
+            // Wait for start to be pressed again
+            while ((Input.PadsCurrent(0) & KeypadBits.Start) == 0)
+            {
+                Interrupt.WaitForVBlank();
+            }
+
+            // Wait for start to be released again
+            while ((Input.PadsCurrent(0) & KeypadBits.Start) > 0)
+            {
+                Interrupt.WaitForVBlank();
+            }
+
+            WriteString(Blank, ref BlockMap, 0x269, 0x3f6);
+            Interrupt.WaitForVBlank();
+            Dma.CopyVram(CUtils.AddressOf(BlockMap), 0x000, 0x800);
+        }
+    }
+
+    private static unsafe void RunFrame()
+    {
+        Gamepad0 = Input.PadsCurrent(0);
+        HandlePause();
+
+        // If A is pressed, do a fast move
+        if ((Gamepad0 & KeypadBits.A) > 0)
+        {
+            if ((Gamepad0 & KeypadBits.Right) > 0)
+            {
+                PaddleXCoordinates += 4;
+            }
+
+            if ((Gamepad0 & KeypadBits.Left) > 0)
+            {
+                PaddleXCoordinates -= 4;
+            }
+        }
+        else
+        {
+            if ((Gamepad0 & KeypadBits.Right) > 0)
+            {
+                PaddleXCoordinates += 4;
+            }
+
+            if ((Gamepad0 & KeypadBits.Left) > 0)
+            {
+                PaddleXCoordinates -= 4;
+            }
+        }
+
+        PaddleXCoordinates = Clamp(PaddleXCoordinates, 16, 144);
+        BallPosition.X += BallVelocity.X;
+        BallPosition.Y += BallVelocity.Y;
+
+        // React to walls
+        if (BallPosition.X > 171)
+        {
+            BallVelocity.X = (short)-BallVelocity.X;
+            BallPosition.X = 171;
+        }
+        else if (BallPosition.X < 16)
+        {
+            BallVelocity.X = (short)-BallVelocity.X;
+            BallPosition.X = 16;
+        }
+
+        // Check the ball against bricks or the top/bottom of the screen
+        if (BallPosition.Y < 15)
+        {
+            // Top of the screen
+            BallVelocity.Y = (short)-BallVelocity.Y;
+        }
+        else if (BallPosition.Y > 195)
+        {
+            // Are we colliding with the paddle?
+            if (BallPosition.Y < 203)
+            {
+                if ((BallPosition.X >= PaddleXCoordinates) && (BallPosition.X <= PaddleXCoordinates + 27))
+                {
+                    LoopK = (byte)((BallPosition.X - PaddleXCoordinates) / 7);
+                    BallVelocity.X = Directions[LoopK].X;
+                    BallVelocity.Y = Directions[LoopK].Y;
+                }
+            }
+            else if (BallPosition.Y > 224)
+            {
+                Die();
+            }
+        }
+        else if (BallPosition.Y < 224)
+        {
+            BrickTestX = BallX;
+            BrickTestY = BallY;
+            BallX = (ushort)((BallPosition.X - 14) >> 4);
+            BallY = (ushort)((BallPosition.Y - 14) >> 3);
+            BrickB = (ushort)(BallX + (BallY << 3) + (BallY << 1) - 10);
+
+            if ((BrickB >= 0) && (BrickB < 100))
+            {
+                // Is the brick still here?
+                if (Blocks[BrickB] != 8)
+                {
+                    BlockCount--;
+                }
+
+                for (LoopI = 0; LoopI <= CurrentLevel; LoopI++)
+                {
+                    Score += (ushort)(Blocks[BrickB] + 1);
+                }
+
+                if (BrickTestY != BallY)
+                {
+                    BallVelocity.Y = (short)-BallVelocity.Y;
+                }
+
+                if (BrickTestX != BallX)
+                {
+                    BallVelocity.X = (short)-BallVelocity.X;
+                }
+
+                // Remove the brick from the screen
+                Blocks[BrickB] = 8;
+                BrickB = (ushort)((BallY << 5) + (BallX << 1));
+                BlockMap[0x42 + BrickB] = 0;
+                BlockMap[0x43 + BrickB] = 0;
+                BackMap[0x63 + BrickB] -= 0x400;
+                BackMap[0x64 + BrickB] -= 0x400;
+                WriteNumber(Score, 8, ref BlockMap, 0xf5, 0x426);
+
+                if (Score > HighScore)
+                {
+                    HighScore = Score;
+                    WriteNumber(Score, 8, ref BlockMap, 0x95, 0x426);
+                }
+
+                Interrupt.WaitForVBlank();
+                Dma.CopyVram(CUtils.AddressOf(BlockMap), 0x000, 0x800);
+                Dma.CopyVram(CUtils.AddressOf(BackMap), 0x400, 0x800);
+
+                // If no more bricks, start a new level
+                if (BlockCount == 0)
+                {
+                    NewLevel();
+                }
+            }
+        }
+
+        DrawScreen();
+        Interrupt.WaitForVBlank();
     }
 }

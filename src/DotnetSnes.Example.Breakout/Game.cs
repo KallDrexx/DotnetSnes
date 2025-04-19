@@ -248,8 +248,8 @@ public static class Game
 
         // Change the background color
         Utils.MemCopy(
-            CUtils.AddressOf(Palette) + 16,
-            CUtils.AddressOf(AssemblyLabels.Backgroundpalette) + BackgroundColor * 16,
+            CUtils.AddressOf(Palette, 16),
+            CUtils.AddressOf(AssemblyLabels.Backgroundpalette, BackgroundColor, 16),
             0x10);
 
         // Initialize the wall of bricks

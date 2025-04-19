@@ -19,7 +19,10 @@ public class StringGetCharsMethodDefinition : CustomDefinedMethod
             new HeaderName("system.h"),
             new CSourceFileName("system.c"),
             new CFunctionName(MacroName),
-            [new Parameter(new IlTypeName("System.Int32"), "index", false)])
+            [
+                new Parameter(new IlTypeName(typeof(string).FullName!), "instance", false),
+                new Parameter(new IlTypeName(typeof(int).FullName!), "index", false)
+            ])
     {
     }
 

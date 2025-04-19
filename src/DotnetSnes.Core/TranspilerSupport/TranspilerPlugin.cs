@@ -91,5 +91,7 @@ public class TranspilerPlugin : ITranspilerPlugin
                 new CTypeName("u8"),
                 []),
         ]);
+
+        context.DefinitionCatalog.Add([new StringGetCharsMethodDefinition()]);
     }
 }

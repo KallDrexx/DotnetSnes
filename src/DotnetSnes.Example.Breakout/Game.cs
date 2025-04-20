@@ -12,34 +12,91 @@ public static class Game
 
     [StaticallySizedArray(4, true)]
     [InitialGlobalValue("{{-2, -1}, {-1, -2}, {1, -2}, {2, -1}}")]
+    [CustomFieldName("dir")]
     public static Vector2[] Directions;
 
     [StaticallySizedArray(0x64, true)]
     [InitialGlobalValue($"{{{Constants.MapData}}};")]
+    [CustomFieldName("map")]
     public static byte[] Map;
 
     [StaticallySizedArray(0x400, true)]
+    [CustomFieldName("blockmap")]
     public static ushort[] BlockMap;
 
     [StaticallySizedArray(0x400, true)]
+    [CustomFieldName("backmap")]
     public static ushort[] BackMap;
 
     [StaticallySizedArray(0x100, true)]
+    [CustomFieldName("pal")]
     public static ushort[] Palette;
 
     [StaticallySizedArray(0x64, true)]
+    [CustomFieldName("blocks")]
     public static byte[] Blocks;
 
-    public static byte LoopI, LoopJ, LoopK;
-    public static ushort BrickA, BrickB, BrickC;
+    [CustomFieldName("i")]
+    public static byte LoopI;
+
+    [CustomFieldName("j")]
+    public static byte LoopJ;
+
+    [CustomFieldName("k")]
+    public static byte LoopK;
+
+    [CustomFieldName("a")]
+    public static ushort BrickA;
+
+    [CustomFieldName("b")]
+    public static ushort BrickB;
+
+    [CustomFieldName("c")]
+    public static ushort BrickC;
+
+    [CustomFieldName("blockcount")]
     public static ushort BlockCount;
-    public static ushort BallX, BallY;
-    public static ushort BrickTestX, BrickTestY;
-    public static ushort Score, HighScore;
+
+    [CustomFieldName("bx")]
+    public static ushort BallX;
+
+    [CustomFieldName("by")]
+    public static ushort BallY;
+
+    [CustomFieldName("obx")]
+    public static ushort BrickTestX;
+
+    [CustomFieldName("oby")]
+    public static ushort BrickTestY;
+
+    [CustomFieldName("score")]
+    public static ushort Score;
+
+    [CustomFieldName("hiscore")]
+    public static ushort HighScore;
+
+    [CustomFieldName("level2")]
     public static ushort MaxLevel;
-    public static ushort BackgroundColor, CurrentLevel, NumLives;
+
+    [CustomFieldName("color")]
+    public static ushort BackgroundColor;
+
+    [CustomFieldName("level")]
+    public static ushort CurrentLevel;
+
+    [CustomFieldName("lives")]
+    public static ushort NumLives;
+
+    [CustomFieldName("pad0")]
     public static KeypadBits Gamepad0;
-    public static Vector2 BallVelocity, BallPosition;
+
+    [CustomFieldName("vel")]
+    public static Vector2 BallVelocity;
+
+    [CustomFieldName("pos")]
+    public static Vector2 BallPosition;
+
+    [CustomFieldName("px")]
     public static ushort PaddleXCoordinates;
 
     [CustomFunctionName("main")]
@@ -57,7 +114,7 @@ public static class Game
         Utils.MemCopy(CUtils.AddressOf(BlockMap), CUtils.AddressOf(AssemblyLabels.Background1Map), 0x800);
         Utils.MemCopy(CUtils.AddressOf(BackMap), CUtils.AddressOf(AssemblyLabels.Background2Map), 0x800);
         Utils.MemCopy(CUtils.AddressOf(Blocks), CUtils.AddressOf(Map), 0x64);
-        Utils.MemCopy(CUtils.AddressOf(AssemblyLabels.Palette), CUtils.AddressOf(Palette), 0x200);
+        Utils.MemCopy(CUtils.AddressOf(Palette), CUtils.AddressOf(AssemblyLabels.Palette), 0x200);
 
         // Init global variables
         BlockCount = 0;
@@ -137,6 +194,7 @@ public static class Game
         }
     }
 
+    [CustomFunctionName("clamp")]
     private static ushort Clamp(ushort value, ushort min, ushort max)
     {
         if (value < min)
@@ -152,6 +210,7 @@ public static class Game
         return value;
     }
 
+    [CustomFunctionName("writestring")]
     private static void WriteString(string stringToWrite, ref ushort[] map, ushort position, ushort offset)
     {
         var startPosition = position;
@@ -170,6 +229,7 @@ public static class Game
         }
     }
 
+    [CustomFunctionName("writenum")]
     private static void WriteNumber(ushort number, byte length, ref ushort[] map, ushort position, ushort offset)
     {
         byte figure;
@@ -196,6 +256,7 @@ public static class Game
         }
     }
 
+    [CustomFunctionName("draw_screen")]
     private static void DrawScreen()
     {
         // main sprites (ball & paddle) (sprites are automatically update in VBlank function of PVSneslib)
@@ -214,6 +275,7 @@ public static class Game
         Sprite.Set(9 * 4, (ushort)(PaddleXCoordinates + 28), 204, 1, 0, 0, 18 | (1 << 8), 0);
     }
 
+    [CustomFunctionName("new_level")]
     private static unsafe void NewLevel()
     {
         // Update all variables regarding levels
@@ -295,7 +357,8 @@ public static class Game
         Dma.CopyVram(ref BlockMap, 0x000, 0x800);
     }
 
-    private static unsafe void Die()
+    [CustomFunctionName("die")]
+    private static void Die()
     {
         if (NumLives == 0)
         {
@@ -333,7 +396,8 @@ public static class Game
         Dma.CopyVram(ref BlockMap, 0x000, 0x800);
     }
 
-    private static unsafe void HandlePause()
+    [CustomFunctionName("handle_pause")]
+    private static void HandlePause()
     {
         // If we pushed the pause button
         if ((Gamepad0 & KeypadBits.Start) > 0)
@@ -366,7 +430,8 @@ public static class Game
         }
     }
 
-    private static unsafe void RunFrame()
+    [CustomFunctionName("run_frame")]
+    private static void RunFrame()
     {
         Gamepad0 = Input.PadsCurrent(0);
         HandlePause();

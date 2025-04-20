@@ -16,7 +16,7 @@ public class NonInitializedGlobalsMutator : IFieldConversionMutator
 
     public void Mutate(FieldConversionInfo conversionInfo, FieldDefinition fieldDefinition)
     {
-        if (fieldDefinition.IsStatic)
+        if (fieldDefinition.IsStatic && conversionInfo.InitialValue == null)
         {
             conversionInfo.HasNoInitialValue = true;
         }

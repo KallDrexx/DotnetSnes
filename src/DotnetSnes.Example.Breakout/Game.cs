@@ -127,7 +127,7 @@ public static class Game
         CurrentLevel = 0;
         NumLives = 4;
         PaddleXCoordinates = 80;
-        BallVelocity.X = 22;
+        BallVelocity.X = 2;
         BallVelocity.Y = 1;
         BallPosition.X = 94;
         BallPosition.Y = 109;
@@ -539,7 +539,7 @@ public static class Game
                 BlockMap[0x43 + BrickB] = 0;
                 BackMap[0x63 + BrickB] -= 0x400;
                 BackMap[0x64 + BrickB] -= 0x400;
-                WriteNumber(Score, 8, ref BlockMap, 0xf5, 0x426);
+                // WriteNumber(Score, 8, ref BlockMap, 0xf5, 0x426);
 
                 if (Score > HighScore)
                 {
@@ -559,6 +559,7 @@ public static class Game
             }
         }
 
+        WriteNumber(PaddleXCoordinates, 8, ref BlockMap, 0xf5, 0x426);
         DrawScreen();
         Interrupt.WaitForVBlank();
     }

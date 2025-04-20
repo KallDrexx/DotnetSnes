@@ -138,7 +138,8 @@ public static class Game
         {
             for (LoopI = 0; LoopI < 20; LoopI += 2)
             {
-                BrickA = Blocks[BrickB++];
+                BrickA = Blocks[BrickB];
+                BrickB++;
                 if (BrickA < 8)
                 {
                     BrickC = (ushort)((LoopJ << 5) + LoopI);
@@ -501,7 +502,7 @@ public static class Game
                 Die();
             }
         }
-        else if (BallPosition.Y < 224)
+        else if (BallPosition.Y < 112)
         {
             BrickTestX = BallX;
             BrickTestY = BallY;
@@ -515,51 +516,49 @@ public static class Game
                 if (Blocks[BrickB] != 8)
                 {
                     BlockCount--;
-                }
+                    for (LoopI = 0; LoopI <= CurrentLevel; LoopI++)
+                    {
+                        Score += (ushort)(Blocks[BrickB] + 1);
+                    }
 
-                for (LoopI = 0; LoopI <= CurrentLevel; LoopI++)
-                {
-                    Score += (ushort)(Blocks[BrickB] + 1);
-                }
+                    if (BrickTestY != BallY)
+                    {
+                        BallVelocity.Y = (short)-BallVelocity.Y;
+                    }
 
-                if (BrickTestY != BallY)
-                {
-                    BallVelocity.Y = (short)-BallVelocity.Y;
-                }
+                    if (BrickTestX != BallX)
+                    {
+                        BallVelocity.X = (short)-BallVelocity.X;
+                    }
 
-                if (BrickTestX != BallX)
-                {
-                    BallVelocity.X = (short)-BallVelocity.X;
-                }
+                    // Remove the brick from the screen
+                    Blocks[BrickB] = 8;
+                    BrickB = (ushort)((BallY << 5) + (BallX << 1));
+                    BlockMap[0x42 + BrickB] = 0;
+                    BlockMap[0x43 + BrickB] = 0;
+                    BackMap[0x63 + BrickB] -= 0x400;
+                    BackMap[0x64 + BrickB] -= 0x400;
+                    WriteNumber(Score, 8, ref BlockMap, 0xf5, 0x426);
 
-                // Remove the brick from the screen
-                Blocks[BrickB] = 8;
-                BrickB = (ushort)((BallY << 5) + (BallX << 1));
-                BlockMap[0x42 + BrickB] = 0;
-                BlockMap[0x43 + BrickB] = 0;
-                BackMap[0x63 + BrickB] -= 0x400;
-                BackMap[0x64 + BrickB] -= 0x400;
-                // WriteNumber(Score, 8, ref BlockMap, 0xf5, 0x426);
+                    if (Score > HighScore)
+                    {
+                        HighScore = Score;
+                        WriteNumber(Score, 8, ref BlockMap, 0x95, 0x426);
+                    }
 
-                if (Score > HighScore)
-                {
-                    HighScore = Score;
-                    WriteNumber(Score, 8, ref BlockMap, 0x95, 0x426);
-                }
+                    Interrupt.WaitForVBlank();
+                    Dma.CopyVram(ref BlockMap, 0x000, 0x800);
+                    Dma.CopyVram(ref BackMap, 0x400, 0x800);
 
-                Interrupt.WaitForVBlank();
-                Dma.CopyVram(ref BlockMap, 0x000, 0x800);
-                Dma.CopyVram(ref BackMap, 0x400, 0x800);
-
-                // If no more bricks, start a new level
-                if (BlockCount == 0)
-                {
-                    NewLevel();
+                    // If no more bricks, start a new level
+                    if (BlockCount == 0)
+                    {
+                        NewLevel();
+                    }
                 }
             }
         }
 
-        WriteNumber(PaddleXCoordinates, 8, ref BlockMap, 0xf5, 0x426);
         DrawScreen();
         Interrupt.WaitForVBlank();
     }

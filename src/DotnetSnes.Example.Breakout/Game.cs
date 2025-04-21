@@ -3,100 +3,59 @@ using DotnetSnes.Core;
 
 namespace DotnetSnes.Example.Breakout;
 
+// Breakout game based on the PVSnesLib breakout example
 public static class Game
 {
-    public const string PlayerReady = "PLAYER 1\n\n READY";
-    public const string GameOver = "GAME OVER";
-    public const string Paused = "PAUSE";
-    public const string Blank = "        ";
+    private const string PlayerReady = "PLAYER 1\n\n READY";
+    private const string GameOver = "GAME OVER";
+    private const string Paused = "PAUSE";
+    private const string Blank = "        ";
+    private const ushort NumberTextureOffset = 0x426;
+    private const ushort MessageTextureOffset = 0x3f6;
+    private const ushort LevelNumberPosition = 0x2d6;
+    private const ushort LivesPosition = 0x136;
+    private const ushort MessageLine1Position = 0x248;
+    private const ushort MessageLine2Position = 0x289;
+    private const ushort GameOverPosition = 0x267; 
+    private const ushort PausedPosition = 0x269;
+    private const ushort ScorePosition = 0xf5;
+    private const ushort HighScorePosition = 0x95;
+    private const ushort TotalBlocks = 0x64;
+    private const short BallStartX = 94;
+    private const short BallStartY = 109;
+    private const ushort PaddleStartX = 80;
 
     [StaticallySizedArray(4, true)]
     [InitialGlobalValue("{{-2, -1}, {-1, -2}, {1, -2}, {2, -1}}")]
-    [CustomFieldName("dir")]
     public static Vector2[] Directions;
 
     [StaticallySizedArray(0x64, true)]
     [InitialGlobalValue($"{{{Constants.MapData}}};")]
-    [CustomFieldName("map")]
     public static byte[] Map;
 
     [StaticallySizedArray(0x400, true)]
-    [CustomFieldName("blockmap")]
     public static ushort[] BlockMap;
 
     [StaticallySizedArray(0x400, true)]
-    [CustomFieldName("backmap")]
     public static ushort[] BackMap;
 
     [StaticallySizedArray(0x100, true)]
-    [CustomFieldName("pal")]
     public static ushort[] Palette;
 
-    [StaticallySizedArray(0x64, true)]
-    [CustomFieldName("blocks")]
+    [StaticallySizedArray(TotalBlocks, true)]
     public static byte[] Blocks;
 
-    [CustomFieldName("i")]
-    public static byte LoopI;
-
-    [CustomFieldName("j")]
-    public static byte LoopJ;
-
-    [CustomFieldName("k")]
-    public static byte LoopK;
-
-    [CustomFieldName("a")]
-    public static ushort BrickA;
-
-    [CustomFieldName("b")]
-    public static ushort BrickB;
-
-    [CustomFieldName("c")]
-    public static ushort BrickC;
-
-    [CustomFieldName("blockcount")]
     public static ushort BlockCount;
-
-    [CustomFieldName("bx")]
-    public static ushort BallX;
-
-    [CustomFieldName("by")]
-    public static ushort BallY;
-
-    [CustomFieldName("obx")]
-    public static ushort BrickTestX;
-
-    [CustomFieldName("oby")]
-    public static ushort BrickTestY;
-
-    [CustomFieldName("score")]
     public static ushort Score;
-
-    [CustomFieldName("hiscore")]
     public static ushort HighScore;
-
-    [CustomFieldName("level2")]
-    public static ushort MaxLevel;
-
-    [CustomFieldName("color")]
     public static ushort BackgroundColor;
-
-    [CustomFieldName("level")]
     public static ushort CurrentLevel;
-
-    [CustomFieldName("lives")]
     public static ushort NumLives;
 
-    [CustomFieldName("pad0")]
     public static KeypadBits Gamepad0;
-
-    [CustomFieldName("vel")]
     public static Vector2 BallVelocity;
-
-    [CustomFieldName("pos")]
     public static Vector2 BallPosition;
-
-    [CustomFieldName("px")]
+    public static Vector2 BallPositionInPixels; // In pixel space
     public static ushort PaddleXCoordinates;
 
     [CustomFunctionName("main")]
@@ -118,42 +77,41 @@ public static class Game
 
         // Init global variables
         BlockCount = 0;
-        BallX = 5;
-        BallY = 11;
         Score = 0;
         HighScore = 50000;
-        MaxLevel = 1;
         BackgroundColor = 0;
         CurrentLevel = 0;
         NumLives = 4;
         PaddleXCoordinates = 80;
         BallVelocity.X = 2;
         BallVelocity.Y = 1;
-        BallPosition.X = 94;
-        BallPosition.Y = 109;
+        BallPosition.X = BallStartX;
+        BallPosition.Y = BallStartY;
+        BallPositionInPixels.X = (short)(BallPosition.X >> 4);
+        BallPositionInPixels.Y = (short)(BallPosition.Y >> 3);
 
         // Init map with all the bricks
-        BrickB = 0;
-        for (LoopJ = 0; LoopJ < 10; LoopJ++)
+        byte index = 0;
+        for (byte j = 0; j < 10; j++)
         {
-            for (LoopI = 0; LoopI < 20; LoopI += 2)
+            for (byte i = 0; i < 20; i += 2)
             {
-                BrickA = Blocks[BrickB];
-                BrickB++;
-                if (BrickA < 8)
+                byte block = Blocks[index];
+                index++;
+                if (block < 8)
                 {
-                    BrickC = (ushort)((LoopJ << 5) + LoopI);
+                    ushort c = (ushort)((j << 5) + i);
                     BlockCount++;
-                    BlockMap[0x62 + BrickC] = (ushort)(13 + (BrickA << 10));
-                    BlockMap[0x63 + BrickC] = (ushort)(14 + (BrickA << 10));
-                    BackMap[0x83 + BrickC] += 0x400;
-                    BackMap[0x84 + BrickC] += 0x400;
+                    BlockMap[0x62 + c] = (ushort)(13 + (block << 10));
+                    BlockMap[0x63 + c] = (ushort)(14 + (block << 10));
+                    BackMap[0x83 + c] += 0x400;
+                    BackMap[0x84 + c] += 0x400;
                 }
             }
         }
 
-        WriteNumber(NumLives, 8, ref BlockMap, 0x136, 0x426);
-        WriteString(PlayerReady, ref BlockMap, 0x248, 0x3f6);
+        WriteNumber(NumLives, LivesPosition, NumberTextureOffset);
+        WriteString(PlayerReady, ref BlockMap, MessageLine1Position);
         Interrupt.WaitForVBlank(); // Wait to avoid glitches
 
         // Init map bg0 and bg2 address and put data inside them
@@ -172,7 +130,7 @@ public static class Game
         Video.SetScreenOn();
         DrawScreen();
 
-        for (LoopI = 0; LoopI < 10 * 4; LoopI += 4)
+        for (byte i = 0; i < 10 * 4; i += 4)
         {
             Sprite.SetExtendedProperties(1, Sprite.SpriteSize.Small, OamVisibility.Show);
         }
@@ -184,8 +142,8 @@ public static class Game
         }
 
         // Remove text (wait for vblank to be sure of no glitches
-        WriteString(Blank, ref BlockMap, 0x248, 0x3f6);
-        WriteString(Blank, ref BlockMap, 0x289, 0x3f6);
+        WriteString(Blank, ref BlockMap, MessageLine1Position);
+        WriteString(Blank, ref BlockMap, MessageLine2Position);
         Interrupt.WaitForVBlank();
         Dma.CopyVram(ref BlockMap, 0x000, 0x800);
 
@@ -195,7 +153,6 @@ public static class Game
         }
     }
 
-    [CustomFunctionName("clamp")]
     private static ushort Clamp(ushort value, ushort min, ushort max)
     {
         if (value < min)
@@ -211,34 +168,33 @@ public static class Game
         return value;
     }
 
-    [CustomFunctionName("writestring")]
-    private static void WriteString(string stringToWrite, ref ushort[] map, ushort position, ushort offset)
+    private static void WriteString(string stringToWrite, ref ushort[] map, ushort position)
     {
         var startPosition = position;
-        for (LoopI = 0; stringToWrite[LoopI] != '\0'; LoopI++)
+        for (byte i = 0; stringToWrite[i] != '\0'; i++)
         {
-            if (stringToWrite[LoopI] == '\n')
+            if (stringToWrite[i] == '\n')
             {
                 startPosition += 0x20;
                 position = startPosition;
             }
             else
             {
-                map[position] = (ushort)(stringToWrite[LoopI] + offset);
+                map[position] = (ushort)(stringToWrite[i] + MessageTextureOffset);
                 position++;
             }
         }
     }
 
-    [CustomFunctionName("writenum")]
-    private static void WriteNumber(ushort number, byte length, ref ushort[] map, ushort position, ushort offset)
+    private static void WriteNumber(ushort number, ushort position, ushort textureOffset)
     {
+        byte length = 8;
         byte figure;
         position += (ushort)(length - 1);
 
         if (number == 0)
         {
-            map[position] = offset;
+            BlockMap[position] = textureOffset;
         }
         else
         {
@@ -247,7 +203,7 @@ public static class Game
                 figure = (byte)(number % 10);
                 if (figure > 0)
                 {
-                    map[position] = (ushort)(figure + offset);
+                    BlockMap[position] = (ushort)(figure + textureOffset);
                 }
 
                 number /= 10;
@@ -257,7 +213,6 @@ public static class Game
         }
     }
 
-    [CustomFunctionName("draw_screen")]
     private static void DrawScreen()
     {
         // main sprites (ball & paddle) (sprites are automatically update in VBlank function of PVSneslib)
@@ -276,17 +231,15 @@ public static class Game
         Sprite.Set(9 * 4, (ushort)(PaddleXCoordinates + 28), 204, 1, 0, 0, 18 | (1 << 8), 0);
     }
 
-    [CustomFunctionName("new_level")]
     private static unsafe void NewLevel()
     {
         // Update all variables regarding levels
         CurrentLevel++;
-        MaxLevel++;
-        BallPosition.X = 94;
-        BallPosition.Y = 109;
-        PaddleXCoordinates = 80;
-        WriteNumber(MaxLevel, 8, ref BlockMap, 0x2d6, 0x426);
-        WriteString(PlayerReady, ref BlockMap, 0x248, 0x3f6);
+        BallPosition.X = BallStartX;
+        BallPosition.Y = BallStartY;
+        PaddleXCoordinates = PaddleStartX;
+        WriteNumber((ushort)(CurrentLevel + 1), LevelNumberPosition, NumberTextureOffset);
+        WriteString(PlayerReady, ref BlockMap, MessageLine1Position);
 
         // Change backgrounds
         Utils.MemCopy(
@@ -297,7 +250,7 @@ public static class Game
         Utils.MemCopy(
             CUtils.AddressOf(Blocks),
             CUtils.AddressOf(Map),
-            0x64);
+            TotalBlocks);
 
         // Manage color of the background
         if (BackgroundColor < 6)
@@ -316,23 +269,23 @@ public static class Game
             0x10);
 
         // Initialize the wall of bricks
-        BrickB = 0;
-        for (LoopJ = 0; LoopJ < 10; LoopJ++)
+        byte index = 0;
+        for (byte j = 0; j < 10; j++)
         {
-            for (LoopI = 0; LoopI < 20; LoopI += 2)
+            for (byte i = 0; i < 20; i += 2)
             {
-                BrickA = Blocks[BrickB];
-                if (BrickA < 8)
+                var block = Blocks[index];
+                if (block < 8)
                 {
-                    BrickC = (ushort)((LoopJ << 5) + LoopI);
+                    var c = (ushort)((j << 5) + i);
                     BlockCount++;
-                    BlockMap[0x62 + BrickC] = (ushort)(13 + (BrickA << 10));
-                    BlockMap[0x63 + BrickC] = (ushort)(14 + (BrickA << 10));
-                    BackMap[0x83 + BrickC] += 0x400;
-                    BackMap[0x84 + BrickC] += 0x400;
+                    BlockMap[0x62 + c] = (ushort)(13 + (block << 10));
+                    BlockMap[0x63 + c] = (ushort)(14 + (block << 10));
+                    BackMap[0x83 + c] += 0x400;
+                    BackMap[0x84 + c] += 0x400;
                 }
 
-                BrickB++;
+                index++;
             }
         }
 
@@ -351,19 +304,18 @@ public static class Game
         }
 
         // Remove message on the screen
-        WriteString(Blank, ref BlockMap, 0x248, 0x3f6);
-        WriteString(Blank, ref BlockMap, 0x289, 0x3f6);
+        WriteString(Blank, ref BlockMap, MessageLine1Position);
+        WriteString(Blank, ref BlockMap, MessageLine2Position);
         Interrupt.WaitForVBlank();
 
         Dma.CopyVram(ref BlockMap, 0x000, 0x800);
     }
 
-    [CustomFunctionName("die")]
     private static void Die()
     {
         if (NumLives == 0)
         {
-            WriteString(GameOver, ref BlockMap, 0x267, 0x3f6);
+            WriteString(GameOver, ref BlockMap, GameOverPosition);
             Interrupt.WaitForVBlank();
             Dma.CopyVram(ref BlockMap, 0x000, 0x800);
             while (true)
@@ -377,8 +329,8 @@ public static class Game
         BallPosition.Y = 109;
         PaddleXCoordinates = 80;
 
-        WriteNumber(NumLives, 8, ref BlockMap, 0x267, 0x3f6);
-        WriteString(PlayerReady, ref BlockMap, 0x248, 0x3f6);
+        WriteNumber(NumLives, LivesPosition, MessageTextureOffset);
+        WriteString(PlayerReady, ref BlockMap, MessageLine1Position);
         Interrupt.WaitForVBlank();
         Dma.CopyVram(ref BlockMap, 0x000, 0x800);
 
@@ -391,19 +343,18 @@ public static class Game
         }
 
         // Remove the message
-        WriteString(Blank, ref BlockMap, 0x248, 0x3f6);
-        WriteString(Blank, ref BlockMap, 0x289, 0x3f6);
+        WriteString(Blank, ref BlockMap, MessageLine1Position);
+        WriteString(Blank, ref BlockMap, MessageLine2Position);
         Interrupt.WaitForVBlank();
         Dma.CopyVram(ref BlockMap, 0x000, 0x800);
     }
 
-    [CustomFunctionName("handle_pause")]
     private static void HandlePause()
     {
         // If we pushed the pause button
         if ((Gamepad0 & KeypadBits.Start) > 0)
         {
-            WriteString(Paused, ref BlockMap, 0x269, 0x3f6);
+            WriteString(Paused, ref BlockMap, PausedPosition);
             Interrupt.WaitForVBlank();
             Dma.CopyVram(ref BlockMap, 0x000, 0x800);
 
@@ -425,13 +376,12 @@ public static class Game
                 Interrupt.WaitForVBlank();
             }
 
-            WriteString(Blank, ref BlockMap, 0x269, 0x3f6);
+            WriteString(Blank, ref BlockMap, PausedPosition);
             Interrupt.WaitForVBlank();
             Dma.CopyVram(ref BlockMap, 0x000, 0x800);
         }
     }
 
-    [CustomFunctionName("run_frame")]
     private static void RunFrame()
     {
         Gamepad0 = Input.PadsCurrent(0);
@@ -454,12 +404,12 @@ public static class Game
         {
             if ((Gamepad0 & KeypadBits.Right) > 0)
             {
-                PaddleXCoordinates += 4;
+                PaddleXCoordinates += 2;
             }
 
             if ((Gamepad0 & KeypadBits.Left) > 0)
             {
-                PaddleXCoordinates -= 4;
+                PaddleXCoordinates -= 2;
             }
         }
 
@@ -492,9 +442,9 @@ public static class Game
             {
                 if ((BallPosition.X >= PaddleXCoordinates) && (BallPosition.X <= PaddleXCoordinates + 27))
                 {
-                    LoopK = (byte)((BallPosition.X - PaddleXCoordinates) / 7);
-                    BallVelocity.X = Directions[LoopK].X;
-                    BallVelocity.Y = Directions[LoopK].Y;
+                    var index = (byte)((BallPosition.X - PaddleXCoordinates) / 7);
+                    BallVelocity.X = Directions[index].X;
+                    BallVelocity.Y = Directions[index].Y;
                 }
             }
             else if (BallPosition.Y > 224)
@@ -504,46 +454,47 @@ public static class Game
         }
         else if (BallPosition.Y < 112)
         {
-            BrickTestX = BallX;
-            BrickTestY = BallY;
-            BallX = (ushort)((BallPosition.X - 14) >> 4);
-            BallY = (ushort)((BallPosition.Y - 14) >> 3);
-            BrickB = (ushort)(BallX + (BallY << 3) + (BallY << 1) - 10);
+            // Did the ball hit a block?
+            var prevPosition = BallPositionInPixels;
+            BallPositionInPixels.X = (short)((BallPosition.X - 14) >> 4);
+            BallPositionInPixels.Y = (short)((BallPosition.Y - 14) >> 3);
 
-            if ((BrickB >= 0) && (BrickB < 100))
+            var brickIndex = (ushort)(BallPositionInPixels.X + (BallPositionInPixels.Y << 3) + (BallPositionInPixels.Y << 1) - 10);
+            if (brickIndex < TotalBlocks)
             {
                 // Is the brick still here?
-                if (Blocks[BrickB] != 8)
+                if (Blocks[brickIndex] != 8)
                 {
                     BlockCount--;
-                    for (LoopI = 0; LoopI <= CurrentLevel; LoopI++)
+                    for (byte i = 0; i <= CurrentLevel; i++)
                     {
-                        Score += (ushort)(Blocks[BrickB] + 1);
+                        Score += (ushort)(Blocks[brickIndex] + 1);
                     }
 
-                    if (BrickTestY != BallY)
+                    // Only adjust velocity if the ball changes positions since the last frame
+                    if (prevPosition.Y != BallPositionInPixels.Y)
                     {
                         BallVelocity.Y = (short)-BallVelocity.Y;
                     }
 
-                    if (BrickTestX != BallX)
+                    if (prevPosition.X != BallPositionInPixels.X)
                     {
                         BallVelocity.X = (short)-BallVelocity.X;
                     }
 
                     // Remove the brick from the screen
-                    Blocks[BrickB] = 8;
-                    BrickB = (ushort)((BallY << 5) + (BallX << 1));
-                    BlockMap[0x42 + BrickB] = 0;
-                    BlockMap[0x43 + BrickB] = 0;
-                    BackMap[0x63 + BrickB] -= 0x400;
-                    BackMap[0x64 + BrickB] -= 0x400;
-                    WriteNumber(Score, 8, ref BlockMap, 0xf5, 0x426);
+                    Blocks[brickIndex] = 8;
+                    brickIndex = (ushort)((BallPositionInPixels.Y << 5) + (BallPositionInPixels.X << 1));
+                    BlockMap[0x42 + brickIndex] = 0;
+                    BlockMap[0x43 + brickIndex] = 0;
+                    BackMap[0x63 + brickIndex] -= 0x400;
+                    BackMap[0x64 + brickIndex] -= 0x400;
+                    WriteNumber(Score, ScorePosition, NumberTextureOffset);
 
                     if (Score > HighScore)
                     {
                         HighScore = Score;
-                        WriteNumber(Score, 8, ref BlockMap, 0x95, 0x426);
+                        WriteNumber(Score, HighScorePosition, NumberTextureOffset);
                     }
 
                     Interrupt.WaitForVBlank();

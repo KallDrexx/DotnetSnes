@@ -6,10 +6,10 @@ namespace DotnetSnes.Example.Breakout;
 // Breakout game based on the PVSnesLib breakout example
 public static class Game
 {
-    private const string PlayerReady = "PLAYER 1\n\n READY";
+    private const string PlayerReady = "DOTNET SNES\n\n READY";
     private const string GameOver = "GAME OVER";
     private const string Paused = "PAUSE";
-    private const string Blank = "        ";
+    private const string Blank = "           ";
     private const ushort NumberTextureOffset = 0x426;
     private const ushort MessageTextureOffset = 0x3f6;
     private const ushort LevelNumberPosition = 0x2d6;

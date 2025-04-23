@@ -24,6 +24,17 @@ public static class Game
     private const short BallStartX = 94;
     private const short BallStartY = 109;
     private const ushort PaddleStartX = 80;
+    private const byte PaddleSpeed = 2;
+    private const byte PaddleFastSpeed = 4;
+    private const short PaddleWidth = 27;
+    private const short LeftBoundary = 16;
+    private const short RightBoundary = 171;
+    private const short TopBoundary = 15;
+    private const short BottomBoundary = 224;
+    private const short PaddleTopBoundary = 195;
+    private const short PaddleBottomBoundary = 203;
+    private const ushort BackgroundSize = 0x400;
+    private const byte MissingBrick = 8;
 
     [StaticallySizedArray(4, true)]
     [InitialGlobalValue("{{-2, -1}, {-1, -2}, {1, -2}, {2, -1}}")]
@@ -33,10 +44,10 @@ public static class Game
     [InitialGlobalValue($"{{{Constants.MapData}}};")]
     public static byte[] Map;
 
-    [StaticallySizedArray(0x400, true)]
+    [StaticallySizedArray(BackgroundSize, true)]
     public static ushort[] BlockMap;
 
-    [StaticallySizedArray(0x400, true)]
+    [StaticallySizedArray(BackgroundSize, true)]
     public static ushort[] BackMap;
 
     [StaticallySizedArray(0x100, true)]
@@ -59,7 +70,7 @@ public static class Game
     public static ushort PaddleXCoordinates;
 
     [CustomFunctionName("main")]
-    public static unsafe void Main()
+    public static void Main()
     {
         // Turn screen off to allow us to update vram
         Video.SetBrightness(0);
@@ -70,10 +81,13 @@ public static class Game
         Dma.CopyVram(ref AssemblyLabels.Tiles2, 0x2000, 0x250);
 
         // Copy data files to ram var to be able to modify them
-        Utils.MemCopy(CUtils.AddressOf(BlockMap), CUtils.AddressOf(AssemblyLabels.Background1Map), 0x800);
-        Utils.MemCopy(CUtils.AddressOf(BackMap), CUtils.AddressOf(AssemblyLabels.Background2Map), 0x800);
-        Utils.MemCopy(CUtils.AddressOf(Blocks), CUtils.AddressOf(Map), 0x64);
-        Utils.MemCopy(CUtils.AddressOf(Palette), CUtils.AddressOf(AssemblyLabels.Palette), 0x200);
+        unsafe
+        {
+            Utils.MemCopy(CUtils.AddressOf(BlockMap), CUtils.AddressOf(AssemblyLabels.Background1Map), 0x800);
+            Utils.MemCopy(CUtils.AddressOf(BackMap), CUtils.AddressOf(AssemblyLabels.Background2Map), 0x800);
+            Utils.MemCopy(CUtils.AddressOf(Blocks), CUtils.AddressOf(Map), 0x64);
+            Utils.MemCopy(CUtils.AddressOf(Palette), CUtils.AddressOf(AssemblyLabels.Palette), 0x200);
+        }
 
         // Init global variables
         BlockCount = 0;
@@ -98,7 +112,7 @@ public static class Game
             {
                 byte block = Blocks[index];
                 index++;
-                if (block < 8)
+                if (block < MissingBrick)
                 {
                     ushort c = (ushort)((j << 5) + i);
                     BlockCount++;
@@ -231,7 +245,7 @@ public static class Game
         Sprite.Set(9 * 4, (ushort)(PaddleXCoordinates + 28), 204, 1, 0, 0, 18 | (1 << 8), 0);
     }
 
-    private static unsafe void NewLevel()
+    private static void NewLevel()
     {
         // Update all variables regarding levels
         CurrentLevel++;
@@ -242,15 +256,18 @@ public static class Game
         WriteString(PlayerReady, ref BlockMap, MessageLine1Position);
 
         // Change backgrounds
-        Utils.MemCopy(
-            CUtils.AddressOf(BackMap),
-            CUtils.AddressOf(AssemblyLabels.Background2Map) + 0x800 * (CurrentLevel & 3),
-            0x800);
+        unsafe
+        {
+            Utils.MemCopy(
+                CUtils.AddressOf(BackMap),
+                CUtils.AddressOf(AssemblyLabels.Background2Map,  0x800 * (CurrentLevel & 3)),
+                0x800);
 
-        Utils.MemCopy(
-            CUtils.AddressOf(Blocks),
-            CUtils.AddressOf(Map),
-            TotalBlocks);
+            Utils.MemCopy(
+                CUtils.AddressOf(Blocks),
+                CUtils.AddressOf(Map),
+                TotalBlocks);
+        }
 
         // Manage color of the background
         if (BackgroundColor < 6)
@@ -263,10 +280,13 @@ public static class Game
         }
 
         // Change the background color
-        Utils.MemCopy(
-            CUtils.AddressOf(Palette, 16),
-            CUtils.AddressOf(AssemblyLabels.Backgroundpalette, BackgroundColor, 16),
-            0x10);
+        unsafe
+        {
+            Utils.MemCopy(
+                CUtils.AddressOf(Palette, 16),
+                CUtils.AddressOf(AssemblyLabels.Backgroundpalette, BackgroundColor, 16),
+                0x10);
+        }
 
         // Initialize the wall of bricks
         byte index = 0;
@@ -275,7 +295,7 @@ public static class Game
             for (byte i = 0; i < 20; i += 2)
             {
                 var block = Blocks[index];
-                if (block < 8)
+                if (block < MissingBrick)
                 {
                     var c = (ushort)((j << 5) + i);
                     BlockCount++;
@@ -387,67 +407,66 @@ public static class Game
         Gamepad0 = Input.PadsCurrent(0);
         HandlePause();
 
-        // If A is pressed, do a fast move
+        // If A is pressed, move faster
         if ((Gamepad0 & KeypadBits.A) > 0)
         {
             if ((Gamepad0 & KeypadBits.Right) > 0)
             {
-                PaddleXCoordinates += 4;
+                PaddleXCoordinates += PaddleFastSpeed;
             }
 
             if ((Gamepad0 & KeypadBits.Left) > 0)
             {
-                PaddleXCoordinates -= 4;
+                PaddleXCoordinates -= PaddleFastSpeed;
             }
         }
         else
         {
             if ((Gamepad0 & KeypadBits.Right) > 0)
             {
-                PaddleXCoordinates += 2;
+                PaddleXCoordinates += PaddleSpeed;
             }
 
             if ((Gamepad0 & KeypadBits.Left) > 0)
             {
-                PaddleXCoordinates -= 2;
+                PaddleXCoordinates -= PaddleSpeed;
             }
         }
 
-        PaddleXCoordinates = Clamp(PaddleXCoordinates, 16, 144);
+        PaddleXCoordinates = Clamp(PaddleXCoordinates, (ushort)LeftBoundary, (RightBoundary - PaddleWidth));
         BallPosition.X += BallVelocity.X;
         BallPosition.Y += BallVelocity.Y;
 
         // React to walls
-        if (BallPosition.X > 171)
+        if (BallPosition.X > RightBoundary)
         {
             BallVelocity.X = (short)-BallVelocity.X;
-            BallPosition.X = 171;
+            BallPosition.X = RightBoundary;
         }
-        else if (BallPosition.X < 16)
+        else if (BallPosition.X < LeftBoundary)
         {
             BallVelocity.X = (short)-BallVelocity.X;
-            BallPosition.X = 16;
+            BallPosition.X = LeftBoundary;
         }
 
         // Check the ball against bricks or the top/bottom of the screen
-        if (BallPosition.Y < 15)
+        if (BallPosition.Y < TopBoundary)
         {
-            // Top of the screen
             BallVelocity.Y = (short)-BallVelocity.Y;
         }
-        else if (BallPosition.Y > 195)
+        else if (BallPosition.Y > PaddleTopBoundary)
         {
             // Are we colliding with the paddle?
-            if (BallPosition.Y < 203)
+            if (BallPosition.Y < PaddleBottomBoundary)
             {
-                if ((BallPosition.X >= PaddleXCoordinates) && (BallPosition.X <= PaddleXCoordinates + 27))
+                if ((BallPosition.X >= PaddleXCoordinates) && (BallPosition.X <= PaddleXCoordinates + PaddleWidth))
                 {
                     var index = (byte)((BallPosition.X - PaddleXCoordinates) / 7);
                     BallVelocity.X = Directions[index].X;
                     BallVelocity.Y = Directions[index].Y;
                 }
             }
-            else if (BallPosition.Y > 224)
+            else if (BallPosition.Y > BottomBoundary)
             {
                 Die();
             }
@@ -483,12 +502,12 @@ public static class Game
                     }
 
                     // Remove the brick from the screen
-                    Blocks[brickIndex] = 8;
+                    Blocks[brickIndex] = MissingBrick;
                     brickIndex = (ushort)((BallPositionInPixels.Y << 5) + (BallPositionInPixels.X << 1));
                     BlockMap[0x42 + brickIndex] = 0;
                     BlockMap[0x43 + brickIndex] = 0;
-                    BackMap[0x63 + brickIndex] -= 0x400;
-                    BackMap[0x64 + brickIndex] -= 0x400;
+                    BackMap[0x63 + brickIndex] -= BackgroundSize;
+                    BackMap[0x64 + brickIndex] -= BackgroundSize;
                     WriteNumber(Score, ScorePosition, NumberTextureOffset);
 
                     if (Score > HighScore)

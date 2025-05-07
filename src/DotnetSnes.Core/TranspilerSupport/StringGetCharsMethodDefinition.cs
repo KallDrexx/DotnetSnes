@@ -1,4 +1,5 @@
 using Dntc.Common;
+using Dntc.Common.Conversion;
 using Dntc.Common.Definitions;
 using Dntc.Common.Syntax.Statements;
 
@@ -22,7 +23,8 @@ public class StringGetCharsMethodDefinition : CustomDefinedMethod
             [
                 new Parameter(new IlTypeName(typeof(string).FullName!), "instance", false),
                 new Parameter(new IlTypeName(typeof(int).FullName!), "index", false)
-            ])
+            ],
+            false)
     {
     }
 
@@ -31,7 +33,7 @@ public class StringGetCharsMethodDefinition : CustomDefinedMethod
         return new CustomCodeStatementSet($"#define {MacroName}(string,index) ((string)[(index)])");
     }
 
-    public override CustomCodeStatementSet? GetCustomImplementation()
+    public override CustomCodeStatementSet? GetCustomImplementation(ConversionCatalog catalog)
     {
         return null;
     }

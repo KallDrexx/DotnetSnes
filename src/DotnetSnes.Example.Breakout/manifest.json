@@ -10,5 +10,6 @@
   "MethodsToTranspile": [
     "System.Void DotnetSnes.Example.Breakout.Game::Main()"
   ],
-  "GlobalsToTranspile": []
+  "GlobalsToTranspile": [],
+  "DebugInfoMode": "None"
 }

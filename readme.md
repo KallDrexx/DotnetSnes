@@ -3,13 +3,15 @@
 Allows using .net languages to create real working SNES roms!
 
 <!-- TOC -->
-* [How Does It Work?](#how-does-it-work)
-* [Getting Started](#getting-started)
-   * [Dependencies needed to install on WSL Ubuntu for make](#dependencies-needed-to-install-on-wsl-ubuntu-for-make)
-   * [Preparing the Repo and SDKs](#preparing-the-repo-and-sdks)
-   * [Hello World Example](#hello-world-example)
-   * [LikeMario Game Example](#likemario-game-example)
-   * [Creating a New Project](#creating-a-new-project)
+* [DotnetSnes](#dotnetsnes-)
+  * [How Does It Work?](#how-does-it-work)
+  * [Getting Started](#getting-started)
+    * [Dependencies needed to install on WSL Ubuntu for make](#dependencies-needed-to-install-on-wsl-ubuntu-for-make)
+    * [Preparing the Repo and SDKs](#preparing-the-repo-and-sdks)
+    * [Hello World Example](#hello-world-example)
+    * [LikeMario Game Example](#likemario-game-example)
+    * [Breakout Game Example](#breakout-game-example)
+    * [Creating a New Project](#creating-a-new-project)
 <!-- TOC -->
 
 ## How Does It Work?

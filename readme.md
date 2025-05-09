@@ -89,6 +89,20 @@ To build:
 
 The `LikeMario.sfc` rom file should now exist in the `bin/Release/net8.0` folder.
 
+### Breakout Game Example
+
+This is a C# port of the
+[PVSnesLib Brekaout example](https://github.com/alekmaul/pvsneslib/tree/master/snes-examples/games/breakout),
+which demonstrates a complete game with more idiomatic C#.
+
+Most game logic is in the [Game class](src/DotnetSnes.Example.Breakout/Game.cs).
+
+To build:
+1. `cd` into `src/DotnetSnes.Example.Breakout`
+2. run `make`
+
+The `Breakout.sfc` rom file should now exist in the `bin/Release/net8.0` folder.
+
 ### Creating a New Project
 
 To start a brand-new project:

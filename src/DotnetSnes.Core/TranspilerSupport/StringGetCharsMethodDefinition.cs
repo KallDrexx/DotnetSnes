@@ -21,14 +21,14 @@ public class StringGetCharsMethodDefinition : CustomDefinedMethod
             new CSourceFileName("system.c"),
             new CFunctionName(MacroName),
             [
-                new Parameter(new IlTypeName(typeof(string).FullName!), "instance", false),
-                new Parameter(new IlTypeName(typeof(int).FullName!), "index", false)
+                new Parameter(new IlTypeName(typeof(string).FullName!), "instance", false, false),
+                new Parameter(new IlTypeName(typeof(int).FullName!), "index", false, false)
             ],
             false)
     {
     }
 
-    public override CustomCodeStatementSet? GetCustomDeclaration()
+    public override CustomCodeStatementSet? GetCustomDeclaration(ConversionCatalog catalog)
     {
         return new CustomCodeStatementSet($"#define {MacroName}(string,index) ((string)[(index)])");
     }

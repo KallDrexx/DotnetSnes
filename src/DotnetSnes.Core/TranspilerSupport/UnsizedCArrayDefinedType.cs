@@ -43,7 +43,7 @@ public class UnsizedCArrayDefinedType : ArrayDefinedType
     public override CStatementSet GetLengthCheckExpression(
         CBaseExpression arrayLengthField,
         CBaseExpression arrayInstance,
-        DereferencedValueExpression index)
+        CBaseExpression index)
     {
         return new CustomCodeStatementSet(""); // We can't check length for these
     }
